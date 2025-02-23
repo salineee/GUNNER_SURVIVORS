@@ -161,6 +161,7 @@ static void draw_stage(void)
 
     IDG_DrawEntities (LAYER_FOREGROUND);
     IDG_DrawEffects  ();
+    IDG_BlitCircle((512-stage.camera.pos.x), (512-stage.camera.pos.y), 256);
 }
 
 static void load_stage(char *filename)

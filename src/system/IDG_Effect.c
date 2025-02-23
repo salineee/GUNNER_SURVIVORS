@@ -33,12 +33,12 @@ void IDG_DoEffects(void)
         e->y     += (e->dy*app.delta_time);
         // printf("LIFE: %lf\n", e->alpha);
 
-        if(e->life <= 50.0)
-        {
-            printf("FADING FASTER...\n");
-            // fade out faster
-            e->alpha -= (app.delta_time*6);
-        }
+        // if(e->life <= 50.0)
+        // {
+        //     printf("FADING FASTER...\n");
+        //     // fade out faster
+        //     e->alpha -= (app.delta_time*6);
+        // }
         // if effect or dead or invisible, free it
         if(e->life <= 0 || e->alpha <= 0)
         {

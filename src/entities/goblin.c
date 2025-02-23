@@ -50,7 +50,8 @@ void init_goblin(entity_t *e)
 
     e->texture           = goblin_textures[0];
     e->friction          = G_FRICTION;
-    e->flags             = EF_WEIGHTLESS;
+    // e->flags             = EF_WEIGHTLESS+EF_SOLID;
+    e->flags = EF_WEIGHTLESS;
 
     e->animation_handler = ah;
     e->data              = em;

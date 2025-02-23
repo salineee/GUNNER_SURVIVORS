@@ -1,7 +1,7 @@
 #ifndef __GOBLIN__
 #define __GOBLIN__
 
-#define G_BASE_LIFE   1000
+#define G_BASE_LIFE   10
 #define G_THINKTIME  (FPS*(1+rand()%3))
 
 #define G_ANIM_TIME   12
