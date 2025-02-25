@@ -3,10 +3,10 @@
 #include "../system/IDG_Atlas.h"
 #include "../system/IDG_Draw.h"
 #include "../system/IDG_Effect.h"
+#include "../system/IDG_Hitbox.h"
 #include "../system/IDG_Sound.h"
 #include "../system/IDG_Util.h"
 // #include "../game/ai.h"
-// #include "../game/bullets.h"
 
 #include "goblin.h"
 
@@ -48,6 +48,8 @@ void init_goblin(entity_t *e)
     em->life             = G_BASE_LIFE;
     em->think_time       = G_THINKTIME;
 
+    IDG_CreateHitbox(e, HB_RECT);
+
     e->texture           = goblin_textures[0];
     e->friction          = G_FRICTION;
     // e->flags             = EF_WEIGHTLESS+EF_SOLID;
@@ -85,11 +87,8 @@ static void tick(entity_t *self)
         // IDG_GetSlope(stage.player->x, stage.player->y, self->x, self->y, &self->dx, &self->dy);
     }
     
-    self->texture    = goblin_textures[ah->frame];
-    // self->hitbox.x   = self->x;
-    // self->hitbox.y   = self->y;
-    // self->hitbox.w   = self->texture->rect.w;
-    // self->hitbox.h   = self->texture->rect.h;
+    self->texture = goblin_textures[ah->frame];
+    IDG_UpdateHitbox(self);
 }
 
 static void draw(entity_t *self)

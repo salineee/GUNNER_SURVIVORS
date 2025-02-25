@@ -1,6 +1,7 @@
 #include "../IDG_Common.h"
 
 #include "../system/IDG_Draw.h"
+#include "../system/IDG_Hitbox.h"
 #include "../system/IDG_Map2D.h"
 #include "../system/IDG_Util.h"
 #include "../system/IDG_Quadtree.h"
@@ -258,22 +259,8 @@ void IDG_DrawEntities(int layer)
 
 	for(i=0, e=candidates[0]; i<MAX_QT_CANDIDATES && e!=NULL; e=candidates[++i])
 	{
-		if(e->layer == layer)
-			e->draw(e);
-	}
-
-	if (app.dev.show_hitboxes)
-	{
-		for(i=0, e=candidates[0]; i<MAX_QT_CANDIDATES && e!=NULL; e=candidates[++i])
-		{
-			// REFACTOR THIS
-			hitbox_t *hb;
-			hb = (hitbox_t *)e->hitbox;
-			if(hb != NULL)
-			{
-				IDG_DrawOutlineRect((hb->pos.x-stage.camera.pos.x), (hb->pos.y-stage.camera.pos.y), hb->pos.w, hb->pos.h, 0xFF, 0x00, 0x00, 0xFF);
-			}
-		}
+		if(e->layer == layer)     { e->draw(e); }
+		if(app.dev.show_hitboxes) { IDG_DrawHitbox(e); }
 	}
 }
 

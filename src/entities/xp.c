@@ -2,6 +2,7 @@
 
 #include "../system/IDG_Atlas.h"
 #include "../system/IDG_Draw.h"
+#include "../system/IDG_Hitbox.h"
 #include "../system/IDG_Sound.h"
 
 #include "xp.h"
@@ -42,9 +43,12 @@ void init_xp_sm(entity_t *e)
     animation_handler_t *ah;
     ah = malloc(sizeof(animation_handler_t));
     memset(ah, 0, sizeof(animation_handler_t));
+
     ah->timer            = XP_SM_ANIM_TIME;
     ah->bob_value        = XP_SM_BOB;
     e->animation_handler = ah;
+
+    IDG_CreateHitbox(e, HB_RECT);
 
     e->texture = xp_sm_texture[0];
     e->flags   = EF_INTERACTIVE;
@@ -77,6 +81,8 @@ void init_xp_md(entity_t *e)
     ah->bob_value        = XP_MD_BOB;
     e->animation_handler = ah;
 
+    IDG_CreateHitbox(e, HB_RECT);
+
     e->texture = xp_md_texture[0];
     e->flags   = EF_INTERACTIVE;
     e->radius  = (int)e->texture->rect.w/2;
@@ -108,6 +114,8 @@ void init_xp_lg(entity_t *e)
     ah->bob_value        = XP_LG_BOB;
     e->animation_handler = ah;
 
+    IDG_CreateHitbox(e, HB_RECT);
+
     e->texture = xp_lg_texture[0];
     e->flags   = EF_INTERACTIVE;
     e->radius  = (int)e->texture->rect.w/2;
@@ -131,10 +139,7 @@ static void tick_xp_sm(entity_t *self)
     }
 
     self->texture  = xp_sm_texture[ah->frame];
-    // self->hitbox.x = self->x;
-    // self->hitbox.y = self->y;
-    // self->hitbox.w = self->texture->rect.w;
-    // self->hitbox.h = self->texture->rect.h;
+    IDG_UpdateHitbox(self);
 }
 
 static void tick_xp_md(entity_t *self)
@@ -151,10 +156,7 @@ static void tick_xp_md(entity_t *self)
     }
 
     self->texture  = xp_md_texture[ah->frame];
-    // self->hitbox.x = self->x;
-    // self->hitbox.y = self->y;
-    // self->hitbox.w = self->texture->rect.w;
-    // self->hitbox.h = self->texture->rect.h;
+    IDG_UpdateHitbox(self);
 }
 
 static void tick_xp_lg(entity_t *self)
@@ -171,10 +173,7 @@ static void tick_xp_lg(entity_t *self)
     }
 
     self->texture  = xp_lg_texture[ah->frame];
-    // self->hitbox.x = self->x;
-    // self->hitbox.y = self->y;
-    // self->hitbox.w = self->texture->rect.w;
-    // self->hitbox.h = self->texture->rect.h;
+    IDG_UpdateHitbox(self);
 }
 
 static void draw(entity_t *self)
