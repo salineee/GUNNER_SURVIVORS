@@ -87,6 +87,9 @@ static void IDG_DrawDebugHUD(void)
     {
         gunner_t *g;
         g = (gunner_t *)stage.player->data;
+
+        // hitbox_t *hb;
+        // hb = (hitbox_t *)stage.player->hitbox;
         
         sprintf(text, "x: %d, y: %d", (int)stage.player->x, (int)stage.player->y);
         IDG_DrawText(text, 10, 50, 0xFF, 0xFF, 0xFF, TEXT_ALIGN_LEFT, 0);

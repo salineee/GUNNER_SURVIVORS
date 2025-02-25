@@ -97,13 +97,15 @@ struct Entity
     int            is_on_ground; 
     int            layer;
     int            angle;
+    int            radius; // NEW - IMPORT TO ENGINE // for circular hitboxes
     unsigned long  flags;
     unsigned long  editor_flags;
     atlas_image_t *texture;
     entity_t      *riding;       // entity is on a moving object / entity?
-    SDL_Rect       hitbox;
+    // SDL_Rect       hitbox;
     void         (*data);              // NEW - IMPORT TO ENGINE
     void         (*animation_handler); // NEW - IMPORT TO ENGINE
+    void         (*hitbox);            // NEW - IMPORT TO ENGINE
     void         (*tick)              (entity_t *self);
     void         (*draw)              (entity_t *self);
     void         (*touch)             (entity_t *self, entity_t *other);
@@ -119,6 +121,13 @@ typedef struct // NEW - IMPORT TO ENGINE
     double timer;
     double bob_value;
 } animation_handler_t;
+
+typedef struct // NEW - IMPORT TO ENGINE
+{
+    int8_t   type;
+    int32_t  radius;
+    SDL_Rect pos;
+} hitbox_t;
 
 typedef struct
 {

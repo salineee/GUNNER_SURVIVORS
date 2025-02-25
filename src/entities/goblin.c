@@ -86,10 +86,10 @@ static void tick(entity_t *self)
     }
     
     self->texture    = goblin_textures[ah->frame];
-    self->hitbox.x   = self->x;
-    self->hitbox.y   = self->y;
-    self->hitbox.w   = self->texture->rect.w;
-    self->hitbox.h   = self->texture->rect.h;
+    // self->hitbox.x   = self->x;
+    // self->hitbox.y   = self->y;
+    // self->hitbox.w   = self->texture->rect.w;
+    // self->hitbox.h   = self->texture->rect.h;
 }
 
 static void draw(entity_t *self)

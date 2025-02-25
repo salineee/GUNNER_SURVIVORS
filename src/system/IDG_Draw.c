@@ -1,6 +1,7 @@
 #include "../IDG_Common.h"
 
 #include "../system/IDG_Text.h"
+#include "../system/IDG_Util.h"
 
 #include "IDG_Draw.h"
 
@@ -53,8 +54,13 @@ void IDG_Blit(SDL_Texture *texture, int x, int y, int center)
 }
 
 // NEW - IMPORT TO ENGINE
-void IDG_BlitCircle(int32_t center_x, int32_t center_y, int32_t radius)
+void IDG_BlitCircle(SDL_Point center, int radius)
 {
+	// 35/49 - slightly approximation of 1/sqrt(2)
+	const int arr_size = IDG_RoundToMultipleOfEight((radius*8*35/49));
+	SDL_Point points[arr_size]; // huh? this works, but fix the error.
+	int       draw_count = 0;
+
 	const int32_t diameter = (radius*2);
 	int32_t x   = (radius-1);
 	int32_t y   = 0;
@@ -64,14 +70,25 @@ void IDG_BlitCircle(int32_t center_x, int32_t center_y, int32_t radius)
 
 	while(x>=y)
 	{
-		SDL_RenderDrawPoint(app.renderer, (center_x+x), (center_y-y));
-		SDL_RenderDrawPoint(app.renderer, (center_x+x), (center_y+y));
-		SDL_RenderDrawPoint(app.renderer, (center_x-x), (center_y-y));
-		SDL_RenderDrawPoint(app.renderer, (center_x-x), (center_y+y));
-		SDL_RenderDrawPoint(app.renderer, (center_x+y), (center_y-x));
-		SDL_RenderDrawPoint(app.renderer, (center_x+y), (center_y+x));
-		SDL_RenderDrawPoint(app.renderer, (center_x-y), (center_y-x));
-		SDL_RenderDrawPoint(app.renderer, (center_x-y), (center_y+x));
+		SDL_Point p1 = {(center.x+x), (center.y-y)},
+				  p2 = {(center.x+x), (center.y+y)},
+				  p3 = {(center.x-x), (center.y-y)},
+				  p4 = {(center.x-x), (center.y+y)},
+				  p5 = {(center.x+y), (center.y-x)},
+				  p6 = {(center.x+y), (center.y+x)},
+				  p7 = {(center.x-y), (center.y-x)},
+				  p8 = {(center.x-y), (center.y+x)};
+
+		points[draw_count+0] = p1;
+		points[draw_count+1] = p2;
+		points[draw_count+2] = p3;
+		points[draw_count+3] = p4;
+		points[draw_count+4] = p5;
+		points[draw_count+5] = p6;
+		points[draw_count+6] = p7;
+		points[draw_count+7] = p8;
+
+		draw_count += 8;
 
 		if(err <= 0)
 		{
@@ -86,7 +103,42 @@ void IDG_BlitCircle(int32_t center_x, int32_t center_y, int32_t radius)
 			tx += 2;
 			err += (tx-diameter);
 		}
+
+		SDL_RenderDrawPoints(app.renderer, points, draw_count);
 	}
+
+	// const int32_t diameter = (radius*2);
+	// int32_t x   = (radius-1);
+	// int32_t y   = 0;
+	// int32_t tx  = 1;
+	// int32_t ty  = 1;
+	// int32_t err = (tx-diameter);
+
+	// while(x>=y)
+	// {
+	// 	SDL_RenderDrawPoint(app.renderer, (center_x+x), (center_y-y));
+	// 	SDL_RenderDrawPoint(app.renderer, (center_x+x), (center_y+y));
+	// 	SDL_RenderDrawPoint(app.renderer, (center_x-x), (center_y-y));
+	// 	SDL_RenderDrawPoint(app.renderer, (center_x-x), (center_y+y));
+	// 	SDL_RenderDrawPoint(app.renderer, (center_x+y), (center_y-x));
+	// 	SDL_RenderDrawPoint(app.renderer, (center_x+y), (center_y+x));
+	// 	SDL_RenderDrawPoint(app.renderer, (center_x-y), (center_y-x));
+	// 	SDL_RenderDrawPoint(app.renderer, (center_x-y), (center_y+x));
+
+	// 	if(err <= 0)
+	// 	{
+	// 		++y;
+	// 		err += ty;
+	// 		ty += 2;
+	// 	}
+
+	// 	if(err > 0)
+	// 	{
+	// 		--x;
+	// 		tx += 2;
+	// 		err += (tx-diameter);
+	// 	}
+	// }
 }
 
 void IDG_BlitAtlasImage(atlas_image_t *atlas_image, int x, int y, int center, SDL_RendererFlip flip)

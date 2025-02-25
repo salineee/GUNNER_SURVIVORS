@@ -84,6 +84,12 @@ int IDG_GetDistance(int x1, int y1, int x2, int y2)
     return sqrt((x*x)+(y*y));
 }
 
+// NEW - IMPORT TO ENGINE
+int IDG_RoundToMultipleOfEight(int v)
+{
+    return ((v+(8-1))&-8);
+}
+
 unsigned long IDG_Hashcode(const char *str)
 {
     unsigned long hash = 5381;

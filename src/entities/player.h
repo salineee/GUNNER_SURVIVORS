@@ -12,6 +12,8 @@
 #define P_BASE_RELOAD_SPEED  20
 #define P_BASE_BULLET_SPEED  12
 
+#define P_MAGNET_RADIUS      128
+
 // #define P_ANIM_TIME          12
 // #define P_WALK_ANIM_FRAMES   4
 #define P_ANIM_TIME          6

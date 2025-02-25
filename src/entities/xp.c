@@ -48,6 +48,8 @@ void init_xp_sm(entity_t *e)
 
     e->texture = xp_sm_texture[0];
     e->flags   = EF_INTERACTIVE;
+    e->radius  = (int)e->texture->rect.w/2;
+    
     e->tick    = tick_xp_sm;
     e->draw    = draw;
     e->touch   = xp_sm_touch;
@@ -77,6 +79,8 @@ void init_xp_md(entity_t *e)
 
     e->texture = xp_md_texture[0];
     e->flags   = EF_INTERACTIVE;
+    e->radius  = (int)e->texture->rect.w/2;
+
     e->tick    = tick_xp_md;
     e->draw    = draw;
     e->touch   = xp_md_touch;
@@ -106,6 +110,8 @@ void init_xp_lg(entity_t *e)
 
     e->texture = xp_lg_texture[0];
     e->flags   = EF_INTERACTIVE;
+    e->radius  = (int)e->texture->rect.w/2;
+
     e->tick    = tick_xp_lg;
     e->draw    = draw;
     e->touch   = xp_lg_touch;
@@ -125,10 +131,10 @@ static void tick_xp_sm(entity_t *self)
     }
 
     self->texture  = xp_sm_texture[ah->frame];
-    self->hitbox.x = self->x;
-    self->hitbox.y = self->y;
-    self->hitbox.w = self->texture->rect.w;
-    self->hitbox.h = self->texture->rect.h;
+    // self->hitbox.x = self->x;
+    // self->hitbox.y = self->y;
+    // self->hitbox.w = self->texture->rect.w;
+    // self->hitbox.h = self->texture->rect.h;
 }
 
 static void tick_xp_md(entity_t *self)
@@ -145,10 +151,10 @@ static void tick_xp_md(entity_t *self)
     }
 
     self->texture  = xp_md_texture[ah->frame];
-    self->hitbox.x = self->x;
-    self->hitbox.y = self->y;
-    self->hitbox.w = self->texture->rect.w;
-    self->hitbox.h = self->texture->rect.h;
+    // self->hitbox.x = self->x;
+    // self->hitbox.y = self->y;
+    // self->hitbox.w = self->texture->rect.w;
+    // self->hitbox.h = self->texture->rect.h;
 }
 
 static void tick_xp_lg(entity_t *self)
@@ -165,10 +171,10 @@ static void tick_xp_lg(entity_t *self)
     }
 
     self->texture  = xp_lg_texture[ah->frame];
-    self->hitbox.x = self->x;
-    self->hitbox.y = self->y;
-    self->hitbox.w = self->texture->rect.w;
-    self->hitbox.h = self->texture->rect.h;
+    // self->hitbox.x = self->x;
+    // self->hitbox.y = self->y;
+    // self->hitbox.w = self->texture->rect.w;
+    // self->hitbox.h = self->texture->rect.h;
 }
 
 static void draw(entity_t *self)
@@ -180,6 +186,9 @@ static void draw(entity_t *self)
         0,
         SDL_FLIP_NONE
     );
+
+    // SDL_Point xp_center = { ((self->x+(self->texture->rect.w/2))-stage.camera.pos.x), ((self->y+(self->texture->rect.h/2))-stage.camera.pos.y) };
+    // IDG_BlitCircle(xp_center, self->radius);
 }
 
 // TODO - can the below functions be consolidated?

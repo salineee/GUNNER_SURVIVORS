@@ -7,7 +7,7 @@ void IDG_PresentScene    (void);
 
 /* Rendering functions */
 void IDG_Blit            (SDL_Texture *texture, int x, int y, int center);
-void IDG_BlitCircle      (int32_t center_x, int32_t center_y, int32_t radius);
+void IDG_BlitCircle      (SDL_Point center, int radius);
 void IDG_BlitAtlasImage  (atlas_image_t *atlas_image, int x, int y, int center, SDL_RendererFlip flip);
 void IDG_BlitRotated     (atlas_image_t *atlas_image, int x, int y, double angle);
 void IDG_BlitScaled      (atlas_image_t *atlas_image, int x, int y, int w, int h, int center);

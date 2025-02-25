@@ -148,6 +148,13 @@ enum
     FACING_DOWN
 };
 
+// NEW - IMPORT TO ENGINE
+enum
+{
+    HB_RECT,
+    HB_SPH
+};
+
 /* WIDGETS */
 enum
 {

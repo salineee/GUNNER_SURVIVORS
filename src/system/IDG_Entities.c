@@ -12,12 +12,13 @@ extern stage_t stage;
 
 static entity_t dead_head, *dead_tail;
 
-static void move               (entity_t *e);
+static void move               (entity_t *e, hitbox_t *hb);
 static void move_to_world_x    (entity_t *e); // for maptile collision
 static void move_to_world_y    (entity_t *e); // for maptile collision
 static void move_to_sector2D_x (entity_t *e); // can these be consolidated?
 static void move_to_sector2D_y (entity_t *e); // ^
-static void move_to_entities   (entity_t *e, double dx, double dy);
+static void move_to_entities   (entity_t *e, hitbox_t *hb, double dx, double dy);
+static void update_hitbox      (entity_t *e, hitbox_t *hb);
 
 void IDG_InitEntities(void)
 {
@@ -37,6 +38,9 @@ void IDG_DoEntities(void)
 
 	for (e=stage.entity_head.next; e!=NULL; e=e->next)
 	{
+		hitbox_t *hb;
+		hb = (hitbox_t *)e->hitbox;
+
 		// remove the node first-
 		// this ensures that, if the entity moves,
 		// it is re-added to the tree in the correct node
@@ -46,8 +50,9 @@ void IDG_DoEntities(void)
 		if(!(e->flags & EF_WEIGHTLESS))
 			e->dy = MIN(e->dy+(GRAVITY*app.delta_time), MAX_FALL_SPEED);
 		
-		move(e);
-		e->tick(e);
+		move          (e, hb);
+		// update_hitbox (e, hb);
+		e->tick       (e);
 		
 		if(!e->dead)
 		{
@@ -72,7 +77,7 @@ void IDG_DoEntities(void)
 	}
 }
 
-static void move(entity_t *e)
+static void move(entity_t *e, hitbox_t *hb)
 {
 	e->dx = (e->dx*e->friction); // friction prevents idle animations from playing
 	e->dy = (e->dy*e->friction); // friction prevents idle animations from playing
@@ -82,7 +87,7 @@ static void move(entity_t *e)
 		e->x += (e->dx*app.delta_time);
 
 		move_to_sector2D_x(e);
-		move_to_entities(e, e->dx, 0);
+		move_to_entities(e, hb, e->dx, 0);
 	}
 	
 	if (e->dy != 0)
@@ -90,7 +95,7 @@ static void move(entity_t *e)
 		e->y += (e->dy*app.delta_time);
 		
 		move_to_sector2D_y(e);
-		move_to_entities(e, 0, e->dy);
+		move_to_entities(e, hb, 0, e->dy);
 	}
 
 	e->x = MIN(MAX(e->x, 0), (MAP_WIDTH*MAP_TILE_SIZE)-e->texture->rect.w);
@@ -197,7 +202,7 @@ static void move_to_sector2D_y(entity_t *e)
 	}
 }
 
-static void move_to_entities(entity_t *e, double dx, double dy)
+static void move_to_entities(entity_t *e, hitbox_t *hb, double dx, double dy)
 {
 	entity_t *other, *candidates[MAX_QT_CANDIDATES];
 	int i, adj, y;
@@ -210,7 +215,11 @@ static void move_to_entities(entity_t *e, double dx, double dy)
 	{
 		app.dev.collision_checks++;
 
-		if(!e->dead && !other->dead && IDG_Collision((e->hitbox.x), (e->hitbox.y+y), e->hitbox.w, e->hitbox.h, other->hitbox.x, other->hitbox.y, other->hitbox.w, other->hitbox.h))
+		int dist = IDG_GetDistance(e->x, e->y, other->x, other->y);
+		// if(!e->dead && !other->dead && IDG_SphCollide(dist, other->radius, e->radius))
+		hitbox_t *hb_other;
+		hb_other = (hitbox_t *)other->hitbox;
+		if(!e->dead && !other->dead && hb!=NULL && hb_other!=NULL && IDG_Collision((hb->pos.x), (hb->pos.y+y), hb->pos.w, hb->pos.h, hb_other->pos.x, hb_other->pos.y, hb_other->pos.w, hb_other->pos.h))
 		{
 			if(other->flags & EF_SOLID)
 			{
@@ -257,7 +266,13 @@ void IDG_DrawEntities(int layer)
 	{
 		for(i=0, e=candidates[0]; i<MAX_QT_CANDIDATES && e!=NULL; e=candidates[++i])
 		{
-            IDG_DrawOutlineRect((e->hitbox.x-stage.camera.pos.x), (e->hitbox.y-stage.camera.pos.y), e->hitbox.w, e->hitbox.h, 0xFF, 0x00, 0x00, 0xFF);
+			// REFACTOR THIS
+			hitbox_t *hb;
+			hb = (hitbox_t *)e->hitbox;
+			if(hb != NULL)
+			{
+				IDG_DrawOutlineRect((hb->pos.x-stage.camera.pos.x), (hb->pos.y-stage.camera.pos.y), hb->pos.w, hb->pos.h, 0xFF, 0x00, 0x00, 0xFF);
+			}
 		}
 	}
 }
@@ -275,6 +290,10 @@ void IDG_ClearEntities(void)
 		{
 			if(e->data != NULL)
 				free(e->data);
+			if(e->hitbox != NULL) // NEW - IMPORT TO ENGINE
+				free(e->hitbox);
+			if(e->animation_handler != NULL) // NEW - IMPORT TO ENGINE
+				free(e->animation_handler);
 			free(e);
 		}
 	}
@@ -286,6 +305,10 @@ void IDG_ClearEntities(void)
 
 		if(e->data != NULL)
 			free(e->data);
+		if(e->hitbox != NULL) // NEW - IMPORT TO ENGINE
+			free(e->hitbox);
+		if(e->animation_handler != NULL) // NEW - IMPORT TO ENGINE
+			free(e->animation_handler);
 		free(e);
 	}
 }

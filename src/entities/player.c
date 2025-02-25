@@ -14,7 +14,7 @@ static void die          (entity_t *self);
 static void shoot        (entity_t *self, gunner_t *g);
 static void fire_bullet  (entity_t *self);
 static void do_levels    (entity_t *self, gunner_t *g);
-static void do_hitbox    (entity_t *self);
+static void do_hitbox    (entity_t *self, hitbox_t *hb);
 static int  is_control   (int type);
 
 static int            facing;
@@ -107,12 +107,17 @@ void init_player(entity_t *e)
     ah = malloc(sizeof(animation_handler_t));
     memset(ah, 0, sizeof(animation_handler_t));
     
+    hitbox_t *hb;
+    hb = malloc(sizeof(hitbox_t));
+    memset(ah, 0, sizeof(hitbox_t));
+
     gunner_t *g;
     g = malloc(sizeof(gunner_t));
     memset(g, 0, sizeof(gunner_t));
     
     // set defaults
     ah->timer            = P_ANIM_TIME;
+    hb->type             = HB_RECT;
 
     g->max_life          = P_BASE_LIFE;    // base health, before modifiers
     g->curr_life         = P_BASE_LIFE;    // current health
@@ -123,9 +128,11 @@ void init_player(entity_t *e)
     e->texture           = p_idle_s;
     e->flags             = EF_WEIGHTLESS;
     e->friction          = P_FRICTION;
+    e->radius            = 64;
 
     // set inherited structs
     e->animation_handler = ah;
+    e->hitbox            = hb;
     e->data              = g;
     
     // set callbacks
@@ -140,13 +147,16 @@ static void tick(entity_t *self) {
     animation_handler_t *ah;
     ah = (animation_handler_t *)self->animation_handler;
 
+    hitbox_t *hb;
+    hb = (hitbox_t *)self->hitbox;
+
     gunner_t *g;
     g = (gunner_t *)self->data;
 
     move         (self, ah);
     shoot        (self, g);
     do_levels    (self, g);
-    do_hitbox    (self);
+    do_hitbox    (self, hb);
 }
 
 static void draw(entity_t *self) 
@@ -157,6 +167,9 @@ static void draw(entity_t *self)
         0,
         self->facing == FACING_RIGHT ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL
     );
+
+    // SDL_Point p_center = { ((self->x+(self->texture->rect.w/2))-stage.camera.pos.x), ((self->y+(self->texture->rect.h/2))-stage.camera.pos.y) };
+    // IDG_BlitCircle(p_center, self->radius);
 }
 
 static void move(entity_t *self, animation_handler_t *ah) 
@@ -249,6 +262,9 @@ static void shoot(entity_t *self, gunner_t *g)
 
 static void fire_bullet(entity_t *self)
 {
+    hitbox_t *hb;
+    hb = (hitbox_t *)self->hitbox;
+
     bullet_t *b;
     int base_angle;
     
@@ -259,10 +275,10 @@ static void fire_bullet(entity_t *self)
     b->damage   = 1;
     b->life     = (FPS*2);
 
-    IDG_GetSlope(app.mouse.x, app.mouse.y, (self->hitbox.x+self->hitbox.w/2)-stage.camera.pos.x, (self->hitbox.y+self->hitbox.h/2)-stage.camera.pos.y, &b->dx, &b->dy);
+    IDG_GetSlope(app.mouse.x, app.mouse.y, (hb->pos.x+hb->pos.w/2)-stage.camera.pos.x, (hb->pos.y+hb->pos.h/2)-stage.camera.pos.y, &b->dx, &b->dy);
     
-    b->x   = (self->hitbox.x+self->hitbox.w/2);
-    b->y   = (self->hitbox.y+self->hitbox.h/2);
+    b->x   = (hb->pos.x+hb->pos.w/2);
+    b->y   = (hb->pos.y+hb->pos.h/2);
     b->dx *= P_BASE_BULLET_SPEED;
     b->dy *= P_BASE_BULLET_SPEED;
 }
@@ -281,12 +297,17 @@ static void do_levels(entity_t *self, gunner_t *g)
     }
 }
 
-static void do_hitbox(entity_t *self)
+static void do_hitbox(entity_t *self, hitbox_t *hb)
 {
-    self->hitbox.x = self->x;
-    self->hitbox.y = self->y+48;
-    self->hitbox.w = self->texture->rect.w;
-    self->hitbox.h = (self->texture->rect.h-48);
+    const int nudge = 48; // frin sprite transparency offset fuckery
+    hb->pos.x = self->x;
+    hb->pos.y = (self->y+nudge);
+    hb->pos.w = self->texture->rect.w;
+    hb->pos.h = (self->texture->rect.h-nudge);
+    // self->hitbox.x = self->x;
+    // self->hitbox.y = self->y+48;
+    // self->hitbox.w = self->texture->rect.w;
+    // self->hitbox.h = (self->texture->rect.h-48);
 }
 
 static int is_control(int type)
