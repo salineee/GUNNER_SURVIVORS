@@ -3,9 +3,11 @@
 #include "../system/IDG_Atlas.h"
 #include "../system/IDG_Draw.h"
 #include "../system/IDG_Effect.h"
+#include "../system/IDG_EntityFactory.h"
 #include "../system/IDG_Hitbox.h"
 #include "../system/IDG_Sound.h"
 #include "../system/IDG_Util.h"
+#include "../entities/xp.h"
 // #include "../game/ai.h"
 
 #include "goblin.h"
@@ -143,6 +145,10 @@ static void take_damage(entity_t *self, int amt, entity_t *attacker)
 
         if(em->life <= 0)
         {
+            entity_t *e = IDG_SpawnEntity();
+            e->x = self->x+(self->texture->rect.w/2);
+            e->y = self->y+(self->texture->rect.h/2);
+            init_xp_sm(e);
             self->dead = 1;
         }
 

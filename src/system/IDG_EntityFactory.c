@@ -27,6 +27,8 @@ void IDG_InitEntityFactory(void)
     // enemies
     IDG_AddInitFunc( "goblin", init_goblin );
 
+    // TODO - uhhhhhhhhhhhhh do xp orbs need to be here?
+    //        if theyre being spawned on enemy death?
     // xp pickups
     IDG_AddInitFunc( "xp_sm",  init_xp_sm  );
     IDG_AddInitFunc( "xp_md",  init_xp_md  );

@@ -1,5 +1,6 @@
 #include "../IDG_Common.h"
 
+#include "../system/IDG_AnimationHandler.h"
 #include "../system/IDG_Atlas.h"
 #include "../system/IDG_Draw.h"
 #include "../system/IDG_Hitbox.h"
@@ -103,16 +104,16 @@ void init_player(entity_t *e)
     }
 
     // set mallocs
-    animation_handler_t *ah;
-    ah = malloc(sizeof(animation_handler_t));
-    memset(ah, 0, sizeof(animation_handler_t));
+    // animation_handler_t *ah;
+    // ah = malloc(sizeof(animation_handler_t));
+    // memset(ah, 0, sizeof(animation_handler_t));
 
     gunner_t *g;
     g = malloc(sizeof(gunner_t));
     memset(g, 0, sizeof(gunner_t));
     
     // set defaults
-    ah->timer            = P_ANIM_TIME;
+    // ah->timer            = P_ANIM_TIME;
 
     g->max_life          = P_BASE_LIFE;    // base health, before modifiers
     g->curr_life         = P_BASE_LIFE;    // current health
@@ -126,7 +127,7 @@ void init_player(entity_t *e)
     e->radius            = 64;
     
     // set inherited structs
-    e->animation_handler = ah;
+    // e->animation_handler = ah;
     e->data              = g;
     
     // set callbacks
@@ -134,7 +135,8 @@ void init_player(entity_t *e)
     e->draw              = draw;
     e->die               = die;
     
-    IDG_CreateHitbox(e, HB_SPH);
+    IDG_CreateAnimationHandler (e, P_ANIM_TIME);
+    IDG_CreateHitbox           (e, HB_SPH);
     stage.player = e;
 }
 
@@ -260,12 +262,11 @@ static void fire_bullet(entity_t *self)
     b->life     = (FPS*2);
     IDG_CreateHitbox(b, HB_RECT);
 
-    hitbox_t *hb_b = IDG_GetHitbox(b);
-    // b->x   = (hb_b->pos.x+hb_b->pos.w/2);
-    // b->y   = (hb_b->pos.y+hb_b->pos.h/2);
     b->x   = (self->x+(self->texture->rect.w/2));
     b->y   = (self->y+(self->texture->rect.h/2));
+
     IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
+    
     b->dx *= P_BASE_BULLET_SPEED;
     b->dy *= P_BASE_BULLET_SPEED;
 }
