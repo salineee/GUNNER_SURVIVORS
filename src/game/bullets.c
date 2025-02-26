@@ -47,7 +47,7 @@ void do_bullets(void)
         b->y       += (b->dy*app.delta_time);
         b->life    -= app.delta_time;
 
-        IDG_UpdateHitbox(b);
+        // IDG_UpdateHitbox(b);
         check_collisions(b);
 
         if(b->life <= 0)
@@ -111,7 +111,8 @@ static void check_entity_collisions(bullet_t *b)
     // TODO - FIX THIS!!! FIX THE GODDAMN QUADTREE!!
     for(e=stage.entity_head.next; e!=NULL; e=e->next) {
         app.dev.collision_checks++;
-        if(((e->flags & EF_SOLID) || e->take_damage != NULL) && IDG_RectCollide(&r, &e->hitbox))
+        hitbox_t *hb = IDG_GetHitbox(e);
+        if(((e->flags & EF_SOLID) || e->take_damage != NULL) && IDG_RectCollide(&r, &hb->pos))
         {
             if(!e->dead && e->take_damage)
             {
@@ -131,6 +132,9 @@ void clear_bullets(void)
         app.dev.entity_count--;
         b = stage.bullet_head.next;
         stage.bullet_head.next = b->next;
+
+        if(b->hitbox != NULL)
+            free(b->hitbox);
         free(b);
     }
 }
