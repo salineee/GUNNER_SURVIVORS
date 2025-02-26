@@ -260,11 +260,12 @@ static void fire_bullet(entity_t *self)
     b->life     = (FPS*2);
     IDG_CreateHitbox(b, HB_RECT);
 
-    hitbox_t *hb = IDG_GetHitbox(b);
-    IDG_GetSlope(app.mouse.x, app.mouse.y, (hb->pos.x+hb->pos.w/2)-stage.camera.pos.x, (hb->pos.y+hb->pos.h/2)-stage.camera.pos.y, &b->dx, &b->dy);
-    
-    b->x   = (hb->pos.x+hb->pos.w/2);
-    b->y   = (hb->pos.y+hb->pos.h/2);
+    hitbox_t *hb_b = IDG_GetHitbox(b);
+    // b->x   = (hb_b->pos.x+hb_b->pos.w/2);
+    // b->y   = (hb_b->pos.y+hb_b->pos.h/2);
+    b->x   = (self->x+(self->texture->rect.w/2));
+    b->y   = (self->y+(self->texture->rect.h/2));
+    IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
     b->dx *= P_BASE_BULLET_SPEED;
     b->dy *= P_BASE_BULLET_SPEED;
 }

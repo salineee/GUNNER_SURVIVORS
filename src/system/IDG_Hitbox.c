@@ -26,6 +26,9 @@ void IDG_UpdateHitbox(entity_t *e)
     hb = (hitbox_t *)e->hitbox;
 
     // TODO - to offset for camera here, or in draw?
+    // TODO - using this function for spawning bullets may lead to some unexpected issues - 
+    //        setting hb x/y and immediately resetting to correct origin in player.c may cause some
+    //        issues between hb init tick and hb update tick
     hb->pos.x = e->x;
     hb->pos.y = e->y;
     hb->pos.w = e->texture->rect.w;
