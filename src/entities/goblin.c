@@ -48,20 +48,20 @@ void init_goblin(entity_t *e)
     em->life             = G_BASE_LIFE;
     em->think_time       = G_THINKTIME;
 
-    IDG_CreateHitbox(e, HB_RECT);
-
     e->texture           = goblin_textures[0];
     e->friction          = G_FRICTION;
     // e->flags             = EF_WEIGHTLESS+EF_SOLID;
     e->flags = EF_WEIGHTLESS;
-
+    
     e->animation_handler = ah;
     e->data              = em;
-
+    
     e->tick              = tick;
     e->touch             = touch;
     e->draw              = draw;
     e->take_damage       = take_damage;
+
+    IDG_CreateHitbox(e, HB_RECT);
 }
 
 static void tick(entity_t *self)

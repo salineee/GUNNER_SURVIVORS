@@ -158,10 +158,11 @@ struct Bullet
     double         dy;
     double         life;
     int            damage;
-    SDL_Rect       hitbox;
+    // SDL_Rect       hitbox;
     entity_t      *owner;
     atlas_image_t *texture;
     void         (*animation_handler);
+    void         (*hitbox);
     bullet_t      *next;
 };
 

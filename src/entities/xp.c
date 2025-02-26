@@ -48,8 +48,6 @@ void init_xp_sm(entity_t *e)
     ah->bob_value        = XP_SM_BOB;
     e->animation_handler = ah;
 
-    IDG_CreateHitbox(e, HB_RECT);
-
     e->texture = xp_sm_texture[0];
     e->flags   = EF_INTERACTIVE;
     e->radius  = (int)e->texture->rect.w/2;
@@ -57,6 +55,8 @@ void init_xp_sm(entity_t *e)
     e->tick    = tick_xp_sm;
     e->draw    = draw;
     e->touch   = xp_sm_touch;
+
+    IDG_CreateHitbox(e, HB_RECT);
 }
 
 void init_xp_md(entity_t *e)
@@ -81,15 +81,15 @@ void init_xp_md(entity_t *e)
     ah->bob_value        = XP_MD_BOB;
     e->animation_handler = ah;
 
-    IDG_CreateHitbox(e, HB_RECT);
-
     e->texture = xp_md_texture[0];
     e->flags   = EF_INTERACTIVE;
     e->radius  = (int)e->texture->rect.w/2;
-
+    
     e->tick    = tick_xp_md;
     e->draw    = draw;
     e->touch   = xp_md_touch;
+
+    IDG_CreateHitbox(e, HB_RECT);
 }
 
 void init_xp_lg(entity_t *e)
@@ -114,15 +114,15 @@ void init_xp_lg(entity_t *e)
     ah->bob_value        = XP_LG_BOB;
     e->animation_handler = ah;
 
-    IDG_CreateHitbox(e, HB_RECT);
-
     e->texture = xp_lg_texture[0];
     e->flags   = EF_INTERACTIVE;
     e->radius  = (int)e->texture->rect.w/2;
-
+    
     e->tick    = tick_xp_lg;
     e->draw    = draw;
     e->touch   = xp_lg_touch;
+    
+    IDG_CreateHitbox(e, HB_RECT);
 }
 
 static void tick_xp_sm(entity_t *self)

@@ -114,7 +114,6 @@ void init_player(entity_t *e)
     // set defaults
     ah->timer            = P_ANIM_TIME;
 
-    IDG_CreateHitbox(e, HB_RECT);
     g->max_life          = P_BASE_LIFE;    // base health, before modifiers
     g->curr_life         = P_BASE_LIFE;    // current health
     g->rest              = P_BASE_REST;    // base lives, before modifiers
@@ -125,7 +124,7 @@ void init_player(entity_t *e)
     e->flags             = EF_WEIGHTLESS;
     e->friction          = P_FRICTION;
     e->radius            = 64;
-
+    
     // set inherited structs
     e->animation_handler = ah;
     e->data              = g;
@@ -134,7 +133,8 @@ void init_player(entity_t *e)
     e->tick              = tick;
     e->draw              = draw;
     e->die               = die;
-
+    
+    IDG_CreateHitbox(e, HB_SPH);
     stage.player = e;
 }
 
@@ -251,19 +251,16 @@ static void shoot(entity_t *self, gunner_t *g)
 
 static void fire_bullet(entity_t *self)
 {
-    hitbox_t *hb;
-    hb = (hitbox_t *)self->hitbox;
-
     bullet_t *b;
     int base_angle;
     
     b           = spawn_bullet(self);
     b->texture  = bullet;
-    b->hitbox.w = b->texture->rect.w;
-    b->hitbox.h = b->texture->rect.h;
     b->damage   = 1;
     b->life     = (FPS*2);
+    IDG_CreateHitbox(b, HB_RECT);
 
+    hitbox_t *hb = IDG_GetHitbox(b);
     IDG_GetSlope(app.mouse.x, app.mouse.y, (hb->pos.x+hb->pos.w/2)-stage.camera.pos.x, (hb->pos.y+hb->pos.h/2)-stage.camera.pos.y, &b->dx, &b->dy);
     
     b->x   = (hb->pos.x+hb->pos.w/2);

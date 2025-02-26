@@ -6,7 +6,6 @@
 
 #include "IDG_Hitbox.h"
 
-extern app_t   app;
 extern stage_t stage;
 
 void IDG_CreateHitbox(entity_t *e, int8_t hb_type)
@@ -15,6 +14,8 @@ void IDG_CreateHitbox(entity_t *e, int8_t hb_type)
     hb = malloc(sizeof(hitbox_t));
     memset(hb, 0, sizeof(hitbox_t));
 
+    if(hb_type == HB_SPH && e->texture != NULL)
+        e->radius = e->texture->rect.w;
     hb->type  = hb_type;
     e->hitbox = hb;
 }
@@ -24,6 +25,7 @@ void IDG_UpdateHitbox(entity_t *e)
     hitbox_t *hb;
     hb = (hitbox_t *)e->hitbox;
 
+    // TODO - to offset for camera here, or in draw?
     hb->pos.x = e->x;
     hb->pos.y = e->y;
     hb->pos.w = e->texture->rect.w;
@@ -47,6 +49,26 @@ void IDG_DrawHitbox(entity_t *e)
     hitbox_t *hb = IDG_GetHitbox(e);
     if(hb != NULL)
     {
-        IDG_DrawOutlineRect((hb->pos.x-stage.camera.pos.x), (hb->pos.y-stage.camera.pos.y), hb->pos.w, hb->pos.h, 0xFF, 0x00, 0x00, 0xFF);
+        switch(hb->type)
+        {
+        case HB_RECT:
+            IDG_DrawOutlineRect(
+                (hb->pos.x-stage.camera.pos.x), 
+                (hb->pos.y-stage.camera.pos.y),
+                hb->pos.w, 
+                hb->pos.h, 
+                0xFF, 0x00, 0x00, 0xFF
+            );
+            break;
+        case HB_SPH:
+            SDL_Point ctr_pt = { (hb->pos.x-stage.camera.pos.x), (hb->pos.y-stage.camera.pos.y) };
+            IDG_BlitCircle(
+                ctr_pt,
+                hb->radius
+            );
+            break;
+        default:
+            break;
+        }
     }
 }

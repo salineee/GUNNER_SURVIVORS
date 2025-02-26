@@ -1,6 +1,7 @@
 #include "../IDG_Common.h"
 
 #include "../system/IDG_Draw.h"
+#include "../system/IDG_Hitbox.h"
 #include "../system/IDG_Util.h"
 #include "../system/IDG_Map2D.h"
 #include "../system/IDG_Quadtree.h"
@@ -44,11 +45,9 @@ void do_bullets(void)
     {
         b->x       += (b->dx*app.delta_time);
         b->y       += (b->dy*app.delta_time);
-        b->hitbox.x = b->x;
-        b->hitbox.y = b->y;
-
         b->life    -= app.delta_time;
 
+        IDG_UpdateHitbox(b);
         check_collisions(b);
 
         if(b->life <= 0)
