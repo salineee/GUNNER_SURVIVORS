@@ -44,14 +44,10 @@ int IDG_LineCollide(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int 
 int IDG_LineRectCollide(int x1, int y1, int x2, int y2, int rx, int ry, int rw, int rh)
 {
     return
-        // top
-        IDG_LineCollide(x1, y1, x2, y2, rx, ry, (rx+rw), ry) ||
-        // bottom
-        IDG_LineCollide(x1, y1, x2, y2, rx, (ry+rh), (rx+rw), (ry+rh)) ||
-        // left
-        IDG_LineCollide(x1, y1, x2, y2, rx, ry, rx, (ry+rh)) ||
-        // right
-        IDG_LineCollide(x1, y1, x2, y2, (rx+rw), ry, (rx+rw), (ry+rh));
+        IDG_LineCollide(x1, y1, x2, y2, rx, ry, (rx+rw), ry) ||           // top
+        IDG_LineCollide(x1, y1, x2, y2, rx, (ry+rh), (rx+rw), (ry+rh)) || // bottom
+        IDG_LineCollide(x1, y1, x2, y2, rx, ry, rx, (ry+rh)) ||           // left
+        IDG_LineCollide(x1, y1, x2, y2, (rx+rw), ry, (rx+rw), (ry+rh));   // right
 }
 
 void IDG_GetSlope(int x1, int y1, int x2, int y2, double *dx, double *dy)

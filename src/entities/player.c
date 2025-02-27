@@ -3,6 +3,7 @@
 #include "../system/IDG_AnimationHandler.h"
 #include "../system/IDG_Atlas.h"
 #include "../system/IDG_Draw.h"
+#include "../system/IDG_Entities.h"
 #include "../system/IDG_Hitbox.h"
 #include "../system/IDG_Util.h"
 #include "../game/bullets.h"
@@ -48,7 +49,7 @@ void init_player(entity_t *e)
 {
     app.dev.entity_count++;
 
-    /* Set textures */
+    // set textures
     if(p_idle_n == NULL)
     {
         // load idle textures
@@ -104,17 +105,10 @@ void init_player(entity_t *e)
     }
 
     // set mallocs
-    // animation_handler_t *ah;
-    // ah = malloc(sizeof(animation_handler_t));
-    // memset(ah, 0, sizeof(animation_handler_t));
-
     gunner_t *g;
     g = malloc(sizeof(gunner_t));
     memset(g, 0, sizeof(gunner_t));
     
-    // set defaults
-    // ah->timer            = P_ANIM_TIME;
-
     g->max_life          = P_BASE_LIFE;    // base health, before modifiers
     g->curr_life         = P_BASE_LIFE;    // current health
     g->rest              = P_BASE_REST;    // base lives, before modifiers
@@ -127,7 +121,6 @@ void init_player(entity_t *e)
     e->radius            = 64;
     
     // set inherited structs
-    // e->animation_handler = ah;
     e->data              = g;
     
     // set callbacks
@@ -141,9 +134,7 @@ void init_player(entity_t *e)
 }
 
 static void tick(entity_t *self) {
-    animation_handler_t *ah;
-    ah = (animation_handler_t *)self->animation_handler;
-
+    animation_handler_t *ah = IDG_GetAnimationHandler(self);
     gunner_t *g;
     g = (gunner_t *)self->data;
 
@@ -193,7 +184,8 @@ static void move(entity_t *self, animation_handler_t *ah)
     }
 
     // TODO - consolidate these switch cases FFS
-    if(self->dx != 0 || self->dy != 0)
+    // TODO - refactor this into animationhandler.h
+    if(IDG_EntityIsMoving(self))
     {
         ah->timer -= app.delta_time;
         if(ah->timer <= 0)
@@ -220,7 +212,7 @@ static void move(entity_t *self, animation_handler_t *ah)
     }
     else
     {
-        ah->frame = 0;
+        // ah->frame = 0;
         switch(self->facing)
         {
         case FACING_LEFT:

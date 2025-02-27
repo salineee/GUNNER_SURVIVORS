@@ -63,7 +63,7 @@ void init_goblin(entity_t *e)
     e->draw              = draw;
     e->take_damage       = take_damage;
 
-    IDG_CreateHitbox(e, HB_RECT);
+    IDG_CreateHitbox(e, HB_SPH);
 }
 
 static void tick(entity_t *self)

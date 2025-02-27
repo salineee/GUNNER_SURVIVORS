@@ -15,7 +15,7 @@ void IDG_CreateHitbox(entity_t *e, int8_t hb_type)
     memset(hb, 0, sizeof(hitbox_t));
 
     if(hb_type == HB_SPH && e->texture != NULL)
-        e->radius = e->texture->rect.w;
+        hb->radius = e->texture->rect.w/2;
     hb->type  = hb_type;
     e->hitbox = hb;
 }
@@ -64,7 +64,7 @@ void IDG_DrawHitbox(entity_t *e)
             );
             break;
         case HB_SPH:
-            SDL_Point ctr_pt = { (hb->pos.x-stage.camera.pos.x), (hb->pos.y-stage.camera.pos.y) };
+            SDL_Point ctr_pt = { ((hb->pos.x-stage.camera.pos.x)+hb->pos.w/2), ((hb->pos.y-stage.camera.pos.y)+hb->pos.h/2) };
             IDG_BlitCircle(
                 ctr_pt,
                 hb->radius
