@@ -132,6 +132,15 @@ enum
 #define EF_UNIQUE              (2 << 5)
 #define EF_REQUIRED            (2 << 6)
 
+/* PICKUP FLAGS */
+#define PU_NONE                 0
+#define PU_MAGNET              (2 << 0)
+#define PU_PISTOL              (2 << 1)
+#define PU_SHOTGUN             (2 << 2)
+#define PU_ROCKET              (2 << 3)
+#define PU_BFG                 (2 << 4)
+#define PU_DRONE               (2 << 5)
+
 // definitions for physics
 // currently unused - intended to be used when
 // clamping 2d vertical movement

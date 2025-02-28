@@ -115,6 +115,7 @@ void init_player(entity_t *e)
     g->target_xp         = P_BASE_TRGT_XP; // base xp required to levelup    
     g->curr_xp           = P_BASE_XP;      // base xp - 0
     g->level             = P_BASE_LEVEL;   // base level - 1
+    g->pickups           = PU_PISTOL;
     e->texture           = p_idle_s;
     e->flags             = EF_WEIGHTLESS;
     e->friction          = P_FRICTION;
@@ -238,7 +239,8 @@ static void shoot(entity_t *self, gunner_t *g)
     g->reload = MAX((g->reload-app.delta_time), 0);
     if(app.mouse.buttons[SDL_BUTTON_LEFT] && g->reload == 0)
     {
-        fire_bullet(self);
+        if(g->pickups & PU_PISTOL)
+            fire_bullet(self);
         g->reload = P_BASE_RELOAD_SPEED;
     }
 }
@@ -252,7 +254,7 @@ static void fire_bullet(entity_t *self)
     b->texture  = bullet;
     b->damage   = 1;
     b->life     = (FPS*2);
-    IDG_CreateHitbox(b, HB_RECT);
+    IDG_CreateBulletHitbox(b, HB_RECT);
 
     b->x   = (self->x+(self->texture->rect.w/2));
     b->y   = (self->y+(self->texture->rect.h/2));

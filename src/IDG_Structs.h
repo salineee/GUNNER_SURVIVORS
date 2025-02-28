@@ -138,6 +138,7 @@ typedef struct
     int    curr_xp;   // current xp
     int    target_xp; // xp til next level
     int    weapon_type;
+    int    pickups;
     double reload;
 } gunner_t;
 
@@ -165,6 +166,14 @@ struct Bullet
     void         (*hitbox);
     bullet_t      *next;
 };
+
+typedef struct // TODO - this prob needs to be a linked list
+{
+    int    type;
+    int    curr_level;
+    int    max_level;
+    void (*fire) (entity_t *player);
+} pickup_t;
 
 /* WIDGET STRUCTS */
 

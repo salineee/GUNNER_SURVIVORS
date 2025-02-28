@@ -20,6 +20,18 @@ void IDG_CreateHitbox(entity_t *e, int8_t hb_type)
     e->hitbox = hb;
 }
 
+void IDG_CreateBulletHitbox(bullet_t *b, int8_t hb_type)
+{
+    hitbox_t *hb;
+    hb = malloc(sizeof(hitbox_t));
+    memset(hb, 0, sizeof(hitbox_t));
+
+    if(hb_type == HB_SPH && b->texture != NULL)
+        hb->radius = b->texture->rect.w/2;
+    hb->type  = hb_type;
+    b->hitbox = hb;
+}
+
 void IDG_UpdateHitbox(entity_t *e)
 {
     hitbox_t *hb;
@@ -42,9 +54,29 @@ void IDG_UpdateHitbox(entity_t *e)
     }
 }
 
+void IDG_UpdateBulletHitbox(bullet_t *b)
+{
+    hitbox_t *hb;
+    hb = (hitbox_t *)b->hitbox;
+
+    // TODO - to offset for camera here, or in draw?
+    // TODO - using this function for spawning bullets may lead to some unexpected issues - 
+    //        setting hb x/y and immediately resetting to correct origin in player.c may cause some
+    //        issues between hb init tick and hb update tick
+    hb->pos.x = b->x;
+    hb->pos.y = b->y;
+    hb->pos.w = b->texture->rect.w;
+    hb->pos.h = b->texture->rect.h;
+}
+
 hitbox_t *IDG_GetHitbox(entity_t *e)
 {
     return (hitbox_t *)e->hitbox; 
+}
+
+hitbox_t *IDG_GetBulletHitbox(bullet_t *b)
+{
+    return (hitbox_t *)b->hitbox; 
 }
 
 void IDG_DrawHitbox(entity_t *e)
