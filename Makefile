@@ -4,7 +4,8 @@ CVER      = -std=c99
 # -Wall 		 // enables warnings
 # -D_REENTRANT   // use declarations necessary for thread usage
 CFLAGS    = -g -Wall -D_REENTRANT
-LDFLAGS   = -Isrc/Include -lm 
+LDFLAGS 		= -Isrc/Include -Isrc/lib
+LDFLAGS_LINUX   = -Isrc/Include -lm
 SDL_CORE  = -lSDL2main -lSDL2 -lSDL2_image
 SDL_MIX   = -lSDL2_mixer
 SDL_TTF   = -lSDL2_ttf
@@ -58,11 +59,16 @@ ATLAS_OBJS=              \
 # TODO
 # Compile this to a folder
 
-#.exe
+#.exe (./main on linux)
 all:
 	$(CC) $(CFLAGS) $(CVER) -o main              \
 	$(CORE_DIRS) $(EDITOR_DIRS) $(JSON_DIRS)     \
 	$(LDFLAGS) $(SDL_CORE) $(SDL_MIX) $(SDL_TTF)
+
+all_linux:
+	$(CC) $(CFLAGS) $(CVER) -o main              \
+	$(CORE_DIRS) $(EDITOR_DIRS) $(JSON_DIRS)     \
+	$(LDFLAGS_LINUX) $(SDL_CORE) $(SDL_MIX) $(SDL_TTF)
 
 # .a
 all_a:
@@ -81,7 +87,7 @@ atlas:
 	$(LDFLAGS) $(SDL_CORE)
 	$(CLEAN_PRJ)
 clean:
-	$(CLEAN_PRJ) *.exe idg_engine.a
+	$(CLEAN_PRJ) main *.exe idg_engine.a
 
 
 
