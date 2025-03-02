@@ -86,7 +86,7 @@ static void tick(entity_t *self)
 
     if(stage.player != NULL)
     {
-        // IDG_GetSlope(stage.player->x, stage.player->y, self->x, self->y, &self->dx, &self->dy);
+        IDG_GetSlope(stage.player->x, stage.player->y, self->x, self->y, &self->dx, &self->dy);
     }
     
     self->texture = goblin_textures[ah->frame];
@@ -148,7 +148,7 @@ static void take_damage(entity_t *self, int amt, entity_t *attacker)
             entity_t *e = IDG_SpawnEntity();
             e->x = self->x+(self->texture->rect.w/2);
             e->y = self->y+(self->texture->rect.h/2);
-            init_xp_sm(e);
+            init_xp_lg(e);
             self->dead = 1;
         }
 

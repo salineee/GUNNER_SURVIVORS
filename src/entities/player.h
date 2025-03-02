@@ -4,11 +4,6 @@
 #define P_BASE_LIFE          10
 #define P_BASE_REST          0
 
-#define P_BASE_TRGT_XP       10
-#define P_XP_MODIFIER        1.5
-#define P_BASE_XP            0
-#define P_BASE_LEVEL         1
-
 #define P_BASE_RELOAD_SPEED  20
 #define P_BASE_BULLET_SPEED  12
 

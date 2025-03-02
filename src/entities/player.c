@@ -7,6 +7,7 @@
 #include "../system/IDG_Hitbox.h"
 #include "../system/IDG_Util.h"
 #include "../game/bullets.h"
+#include "../game/levelup.h"
 
 #include "player.h"
 
@@ -16,7 +17,6 @@ static void move         (entity_t *self, animation_handler_t *ah);
 static void die          (entity_t *self);
 static void shoot        (entity_t *self, gunner_t *g);
 static void fire_bullet  (entity_t *self);
-static void do_levels    (entity_t *self, gunner_t *g);
 static int  is_control   (int type);
 
 static int            facing;
@@ -139,10 +139,10 @@ static void tick(entity_t *self) {
     gunner_t *g;
     g = (gunner_t *)self->data;
 
-    move         (self, ah);
-    shoot        (self, g);
-    do_levels    (self, g);
-    IDG_UpdateHitbox(self);
+    move             (self, ah);
+    shoot            (self, g);
+    // do_levelup       (self, g);
+    IDG_UpdateHitbox (self);
 }
 
 static void draw(entity_t *self) 
@@ -263,20 +263,6 @@ static void fire_bullet(entity_t *self)
     
     b->dx *= P_BASE_BULLET_SPEED;
     b->dy *= P_BASE_BULLET_SPEED;
-}
-
-static void do_levels(entity_t *self, gunner_t *g)
-{
-    if(g->curr_xp >= g->target_xp)
-    {
-        double div  = (double)g->curr_xp/g->target_xp;
-        int    lvls = (int)div;
-        int    rem  = (int)(10*(div-lvls));
-        
-        g->curr_xp   = rem;
-        g->target_xp = ((P_BASE_TRGT_XP*g->level)*P_XP_MODIFIER); // TODO - proof of concept. test this and see if its too dramatic.
-        g->level    += lvls;
-    }
 }
 
 static int is_control(int type)

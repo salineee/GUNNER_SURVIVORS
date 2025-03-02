@@ -267,6 +267,8 @@ typedef struct
     int         map[MAP_WIDTH][MAP_HEIGHT];
     int         status; // level complete/failed/etc
     double      time;   // time elapsed in level
+    int         paused; // NEW - IMPORT TO ENGINE
+    int         levelup;
     entity_t    entity_head,      *entity_tail;
     entity_t    dead_entity_head, *dead_entity_tail;
     bullet_t    bullet_head,      *bullet_tail;

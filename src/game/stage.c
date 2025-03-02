@@ -17,6 +17,7 @@
 #include "../json/cJSON.h"
 #include "../entities/player.h"
 #include "../game/bullets.h"
+#include "../game/levelup.h"
 
 #include "stage.h"
 
@@ -37,7 +38,6 @@ static void setup_widgets (void);
 static atlas_image_t *crosshair;
 
 static int was_init = 0;
-static int paused;
 
 void init_stage(void)
 {
@@ -76,8 +76,9 @@ void init_stage(void)
 
 static void logic(void)
 {
-    if(!paused) { do_stage(); }
-    else        { do_pause(); }
+    if      (stage.paused)  { do_pause();   }
+    else if (stage.levelup) { do_levelup(); }
+    else                    { do_stage();   }
 }
 
 static void draw(void)
@@ -85,17 +86,21 @@ static void draw(void)
     draw_stage();
     IDG_BlitAtlasImage(crosshair, app.mouse.x, app.mouse.y, 1, 0);
 
-    if(!paused)
-    {
-        IDG_DrawHUD();
-    }
-    else
+    if(stage.paused)
     {
         IDG_DrawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0x00, 0x00, 0x00, 160);
         app.font_scale = 1.5;
         IDG_DrawText("PAUSE", (SCREEN_WIDTH/2), (SCREEN_HEIGHT/2), 0xFF, 0xFF, 0xFF, TEXT_ALIGN_CENTER, 0); 
         app.font_scale = 1.0;
         // IDG_DrawWidgets("pause");
+    }
+    else if(stage.levelup)
+    {
+        draw_levelup_hud();
+    }
+    else
+    {
+        IDG_DrawHUD();
     }
 }
 
@@ -108,6 +113,7 @@ static void do_stage(void)
     do_bullets     ();
     IDG_DoEffects  ();
     IDG_DoHUD      ();
+    do_levels      ();
 
     if(stage.camera.initialized) { IDG_DoCamera(); }
 
@@ -117,7 +123,13 @@ static void do_stage(void)
     {
         app.keyboard[SDL_SCANCODE_ESCAPE] = 0;
         // app.active_widget = IDG_GetWidget("resume", "pause");
-        paused = 1;
+        stage.paused = 1;
+    }
+
+    if(app.keyboard[SDL_SCANCODE_1])
+    {
+        app.keyboard[SDL_SCANCODE_1] = 0;
+        stage.levelup = 1;
     }
 
     if(app.keyboard[SDL_SCANCODE_F1])
@@ -146,7 +158,7 @@ static void do_pause(void)
     if(app.keyboard[SDL_SCANCODE_ESCAPE])
     {
         app.keyboard[SDL_SCANCODE_ESCAPE] = 0;
-        paused = 0;
+        stage.paused = 0;
     }
 }
 
@@ -200,7 +212,7 @@ static void reset_stage(void)
 
 static void resume(void)
 {
-    paused = 0;
+    stage.paused = 0;
 }
 
 static void post_options(void)

@@ -141,6 +141,12 @@ enum
 #define PU_BFG                 (2 << 4)
 #define PU_DRONE               (2 << 5)
 
+/* PLAYER STUFF */
+#define P_BASE_TRGT_XP          10
+#define P_XP_MODIFIER           1.5
+#define P_BASE_XP               0
+#define P_BASE_LEVEL            1
+
 // definitions for physics
 // currently unused - intended to be used when
 // clamping 2d vertical movement
