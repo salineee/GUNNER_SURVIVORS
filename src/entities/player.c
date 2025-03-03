@@ -17,6 +17,7 @@ static void move         (entity_t *self, animation_handler_t *ah);
 static void die          (entity_t *self);
 static void shoot        (entity_t *self, gunner_t *g);
 static void fire_bullet  (entity_t *self);
+static void fire_bfg     (entity_t *self); // TODO - refactor pickup fire funcs
 static int  is_control   (int type);
 
 static int            facing;
@@ -40,6 +41,7 @@ static atlas_image_t *p_hurt_ew;
 
 // projectile textures
 static atlas_image_t *bullet;
+static atlas_image_t *bfg_prj   [PU_BFG_PRJ_ANIM_FRAMES];
 
 extern app_t   app;
 extern game_t  game;
@@ -48,17 +50,19 @@ extern stage_t stage;
 void init_player(entity_t *e)
 {
     app.dev.entity_count++;
-
+    
     // set textures
     if(p_idle_n == NULL)
     {
+        char filename[MAX_FILENAME_LENGTH];
+
         // load idle textures
-        // p_idle_n  = IDG_GetAtlasImage ("data/gfx/player/p_idle_n/tile1.png",  1);
-        // p_idle_s  = IDG_GetAtlasImage ("data/gfx/player/p_idle_s/tile1.png",  1);
-        // p_idle_ew = IDG_GetAtlasImage ("data/gfx/player/p_idle_ew/tile1.png", 1);
-        p_idle_n  = IDG_GetAtlasImage ("data/gfx/frin_test/f_idle_n/tile1.png",  1);
-        p_idle_s  = IDG_GetAtlasImage ("data/gfx/frin_test/f_idle_s/tile1.png",  1);
-        p_idle_ew = IDG_GetAtlasImage ("data/gfx/frin_test/f_idle_ew/tile1.png", 1);
+        p_idle_n  = IDG_GetAtlasImage ("data/gfx/player/p_idle_n/tile1.png",  1);
+        p_idle_s  = IDG_GetAtlasImage ("data/gfx/player/p_idle_s/tile1.png",  1);
+        p_idle_ew = IDG_GetAtlasImage ("data/gfx/player/p_idle_ew/tile1.png", 1);
+        // p_idle_n  = IDG_GetAtlasImage ("data/gfx/frin_test/f_idle_n/tile1.png",  1);
+        // p_idle_s  = IDG_GetAtlasImage ("data/gfx/frin_test/f_idle_s/tile1.png",  1);
+        // p_idle_ew = IDG_GetAtlasImage ("data/gfx/frin_test/f_idle_ew/tile1.png", 1);
     
         // load hurt textures
         p_hurt_n  = IDG_GetAtlasImage ("data/gfx/player/p_hurt_n/tile1.png",  1);
@@ -67,33 +71,37 @@ void init_player(entity_t *e)
 
         // projectile textures
         bullet    = IDG_GetAtlasImage ("data/gfx/effects/plasma/tile1.png",   1);
+        for(int i=0; i<PU_BFG_PRJ_ANIM_FRAMES; i++)
+        {
+            sprintf(filename, "data/gfx/effects/bfg_prj/tile%d.png", (i+1));
+            bfg_prj[0] = IDG_GetAtlasImage(filename, 1);
+        }
 
         // load walk textures
-        char filename[MAX_FILENAME_LENGTH];
         for(int i=0; i<P_WALK_ANIM_FRAMES; i++)
         {
-            // // walk north
-            // sprintf(filename, "data/gfx/player/p_walk_n/tile%d.png", (i+1));
-            // p_walk_n[i]  = IDG_GetAtlasImage(filename, 1);
-            
-            // // walk south
-            // sprintf(filename, "data/gfx/player/p_walk_s/tile%d.png", (i+1));
-            // p_walk_s[i]  = IDG_GetAtlasImage(filename, 1);
-            
-            // // walk east/west
-            // sprintf(filename, "data/gfx/player/p_walk_ew/tile%d.png", (i+1));
-            // p_walk_ew[i] = IDG_GetAtlasImage(filename, 1);
             // walk north
-            sprintf(filename, "data/gfx/frin_test/f_walk_n/tile%d.png", (i+1));
+            sprintf(filename, "data/gfx/player/p_walk_n/tile%d.png", (i+1));
             p_walk_n[i]  = IDG_GetAtlasImage(filename, 1);
             
             // walk south
-            sprintf(filename, "data/gfx/frin_test/f_walk_s/tile%d.png", (i+1));
+            sprintf(filename, "data/gfx/player/p_walk_s/tile%d.png", (i+1));
             p_walk_s[i]  = IDG_GetAtlasImage(filename, 1);
             
             // walk east/west
-            sprintf(filename, "data/gfx/frin_test/f_walk_ew/tile%d.png", (i+1));
+            sprintf(filename, "data/gfx/player/p_walk_ew/tile%d.png", (i+1));
             p_walk_ew[i] = IDG_GetAtlasImage(filename, 1);
+            // walk north
+            // sprintf(filename, "data/gfx/frin_test/f_walk_n/tile%d.png", (i+1));
+            // p_walk_n[i]  = IDG_GetAtlasImage(filename, 1);
+            
+            // // walk south
+            // sprintf(filename, "data/gfx/frin_test/f_walk_s/tile%d.png", (i+1));
+            // p_walk_s[i]  = IDG_GetAtlasImage(filename, 1);
+            
+            // // walk east/west
+            // sprintf(filename, "data/gfx/frin_test/f_walk_ew/tile%d.png", (i+1));
+            // p_walk_ew[i] = IDG_GetAtlasImage(filename, 1);
         }
 
         // load die textures
@@ -115,7 +123,8 @@ void init_player(entity_t *e)
     g->target_xp         = P_BASE_TRGT_XP; // base xp required to levelup    
     g->curr_xp           = P_BASE_XP;      // base xp - 0
     g->level             = P_BASE_LEVEL;   // base level - 1
-    g->pickups           = PU_PISTOL;
+    // g->pickups           = PU_PISTOL;
+    g->pickups           = PU_BFG;
     e->texture           = p_idle_s;
     e->flags             = EF_WEIGHTLESS;
     e->friction          = P_FRICTION;
@@ -241,6 +250,8 @@ static void shoot(entity_t *self, gunner_t *g)
     {
         if(g->pickups & PU_PISTOL)
             fire_bullet(self);
+        if(g->pickups & PU_BFG)
+            fire_bfg(self);
         g->reload = P_BASE_RELOAD_SPEED;
     }
 }
@@ -250,10 +261,11 @@ static void fire_bullet(entity_t *self)
     bullet_t *b;
     int base_angle;
     
-    b           = spawn_bullet(self);
-    b->texture  = bullet;
-    b->damage   = 1;
-    b->life     = (FPS*2);
+    b            = spawn_bullet(self);
+    b->type_flag = PU_PISTOL;
+    b->texture   = bullet;
+    b->damage    = 1;
+    b->life      = (FPS*2);
     IDG_CreateBulletHitbox(b, HB_RECT);
 
     b->x   = (self->x+(self->texture->rect.w/2));
@@ -263,6 +275,27 @@ static void fire_bullet(entity_t *self)
     
     b->dx *= P_BASE_BULLET_SPEED;
     b->dy *= P_BASE_BULLET_SPEED;
+}
+
+static void fire_bfg(entity_t *self)
+{
+    bullet_t *b;
+    int base_angle;
+
+    b            = spawn_bullet(b);
+    b->type_flag = PU_BFG;
+    b->texture   = bfg_prj[0];
+    b->damage    = 1;
+    b->life      = (FPS*2);
+    IDG_CreateBulletHitbox(b, HB_SPH);
+
+    b->x = self->x;
+    b->y = self->y;
+
+    IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
+
+    b->dx *= PU_BASE_BFG_SPEED;
+    b->dy *= PU_BASE_BFG_SPEED;
 }
 
 static int is_control(int type)

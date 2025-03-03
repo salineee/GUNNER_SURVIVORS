@@ -23,7 +23,7 @@ void do_levels(void)
             g->curr_xp    = rem;
             g->target_xp  = ((P_BASE_TRGT_XP*g->level)*P_XP_MODIFIER); // TODO - proof of concept. test this and see if its too dramatic.
             g->level     += lvls;
-            stage.levelup = 1;
+            // stage.levelup = 1;
         }
     }
 }

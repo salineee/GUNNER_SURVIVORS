@@ -86,7 +86,7 @@ static void tick(entity_t *self)
 
     if(stage.player != NULL)
     {
-        IDG_GetSlope(stage.player->x, stage.player->y, self->x, self->y, &self->dx, &self->dy);
+        // IDG_GetSlope(stage.player->x, stage.player->y, self->x, self->y, &self->dx, &self->dy);
     }
     
     self->texture = goblin_textures[ah->frame];

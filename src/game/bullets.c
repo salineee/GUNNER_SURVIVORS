@@ -68,6 +68,8 @@ void do_bullets(void)
 void draw_bullets(void)
 {
     bullet_t *b;
+    entity_t *e;
+
     for(b=stage.bullet_head.next; b!=NULL; b=b->next)
     {
         IDG_BlitAtlasImage(
@@ -76,6 +78,23 @@ void draw_bullets(void)
             0,
             b->dx > 0 ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL
         );
+
+        // TODO - this belongs elsewhere
+        if(b->type_flag & PU_BFG)
+        {
+            for(e=stage.entity_head.next; e!=NULL; e=e->next)
+            {
+                if(e!=stage.player)
+                {
+                    int x1 = ((b->x-stage.camera.pos.x)+(b->texture->rect.w/2));
+                    int y1 = ((b->y-stage.camera.pos.y)+(b->texture->rect.h/2));
+                    int x2 = ((e->x-stage.camera.pos.x)+(e->texture->rect.w/2));
+                    int y2 = ((e->y-stage.camera.pos.y)+(e->texture->rect.h/2));
+                    SDL_SetRenderDrawColor(app.renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                    SDL_RenderDrawLine(app.renderer, x1, y1, x2, y2);
+                }
+            }
+        }
     }
 }
 
@@ -95,6 +114,8 @@ static void check_world_collisions(bullet_t *b)
 
 static void check_entity_collisions(bullet_t *b)
 {
+    if(b->type_flag == PU_BFG) { return; } // don't check entity collisions on BFG projectiles
+
     entity_t *e, *candidates[MAX_QT_CANDIDATES];
     SDL_Rect  r;
     int       i;

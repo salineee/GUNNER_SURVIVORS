@@ -4,7 +4,7 @@ CVER      = -std=c99
 # -Wall 		 // enables warnings
 # -D_REENTRANT   // use declarations necessary for thread usage
 CFLAGS    = -g -Wall -D_REENTRANT
-LDFLAGS 		= -Isrc/Include -Isrc/lib
+LDFLAGS 		= -Isrc/Include -Lsrc/lib
 LDFLAGS_LINUX   = -Isrc/Include -lm
 SDL_CORE  = -lSDL2main -lSDL2 -lSDL2_image
 SDL_MIX   = -lSDL2_mixer

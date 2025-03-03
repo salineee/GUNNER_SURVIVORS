@@ -153,6 +153,7 @@ typedef struct
 
 struct Bullet
 {
+    int            type_flag;
     double         x;
     double         y;
     double         dx;

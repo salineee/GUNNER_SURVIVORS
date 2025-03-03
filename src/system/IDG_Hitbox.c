@@ -48,9 +48,9 @@ void IDG_UpdateHitbox(entity_t *e)
 
     if(e == stage.player)
     {
-        const int nudge = 48; // frin sprite transparency offset fuckery
-        hb->pos.y += nudge;
-        hb->pos.h -= nudge;
+        // const int nudge = 48; // frin sprite transparency offset fuckery
+        // hb->pos.y += nudge;
+        // hb->pos.h -= nudge;
     }
 }
 
