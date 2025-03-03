@@ -9,11 +9,22 @@
 extern app_t   app;
 extern stage_t stage;
 
+static atlas_image_t *pu_bfg_impact[PU_BFG_IMPACT_ANIM_FRAMES];
+
 void IDG_InitEffects(void)
 {
     SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO, "Initializing Effects");
 
     /* load effect textures below this line */
+    if(pu_bfg_impact[0] == NULL)
+    {
+        char filename[MAX_FILENAME_LENGTH];
+        for(int i=0; i<PU_BFG_IMPACT_ANIM_FRAMES; i++)
+        {
+            sprintf(filename, "data/gfx/effects/bfg_impact/tile%d.png", (i+1));
+            pu_bfg_impact[i] = IDG_GetAtlasImage(filename, 1);
+        }
+    }
     /*****/    
 
     memset(&stage.effect_head, 0, sizeof(effect_t));
@@ -31,14 +42,7 @@ void IDG_DoEffects(void)
         e->alpha -= app.delta_time;
         e->x     += (e->dx*app.delta_time);
         e->y     += (e->dy*app.delta_time);
-        // printf("LIFE: %lf\n", e->alpha);
 
-        // if(e->life <= 50.0)
-        // {
-        //     printf("FADING FASTER...\n");
-        //     // fade out faster
-        //     e->alpha -= (app.delta_time*6);
-        // }
         // if effect or dead or invisible, free it
         if(e->life <= 0 || e->alpha <= 0)
         {
@@ -52,6 +56,8 @@ void IDG_DoEffects(void)
     }
 }
 
+// TODO - create defines for int effect types and handle draw differently
+//        based on effect
 void IDG_DrawEffects(void)
 {
     effect_t *e;
@@ -114,4 +120,15 @@ void add_attack_hit_effect(int start_x, int start_y, int amt)
     // char dmg[16];
     // sprintf(dmg, "%d", amt);
     // IDG_DrawText(dmg, (start_x-16), (start_y-16), 0xFF, 0x00, 0x00, TEXT_ALIGN_CENTER, 0);
-} 
+}
+
+void add_bfg_impact_effect(int x, int y)
+{
+    effect_t *e;
+    e = malloc(sizeof(effect_t));
+    memset(e, 0, sizeof(effect_t));
+    stage.effect_tail->next = e;
+    stage.effect_tail       = e;
+
+
+}

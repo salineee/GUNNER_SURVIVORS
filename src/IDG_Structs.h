@@ -235,6 +235,7 @@ typedef struct // Control
 
 struct Effect
 {
+    int       type;
     double    x;
     double    y;
     double    dx;
@@ -244,6 +245,7 @@ struct Effect
     int       size;
     char      text[MAX_NAME_LENGTH];
     SDL_Color color;
+    void    (*animation_handler);
     effect_t *next;
 };
 

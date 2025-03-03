@@ -8,5 +8,6 @@ void IDG_ClearEffects       (void);
 
 // add custom effects below this line
 void add_attack_hit_effect  (int start_x, int start_y, int amt);
+void add_bfg_impact_effect  (int x, int y);
 
 #endif // __IDG_EFFECT__

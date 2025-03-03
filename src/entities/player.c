@@ -16,7 +16,7 @@ static void draw         (entity_t *self);
 static void move         (entity_t *self, animation_handler_t *ah);
 static void die          (entity_t *self);
 static void shoot        (entity_t *self, gunner_t *g);
-static void fire_bullet  (entity_t *self);
+static void fire_pistol  (entity_t *self);
 static void fire_bfg     (entity_t *self); // TODO - refactor pickup fire funcs
 static int  is_control   (int type);
 
@@ -41,7 +41,7 @@ static atlas_image_t *p_hurt_ew;
 
 // projectile textures
 static atlas_image_t *bullet;
-static atlas_image_t *bfg_prj   [PU_BFG_PRJ_ANIM_FRAMES];
+static atlas_image_t *pu_bfg_prj   [PU_BFG_PRJ_ANIM_FRAMES];
 
 extern app_t   app;
 extern game_t  game;
@@ -74,7 +74,7 @@ void init_player(entity_t *e)
         for(int i=0; i<PU_BFG_PRJ_ANIM_FRAMES; i++)
         {
             sprintf(filename, "data/gfx/effects/bfg_prj/tile%d.png", (i+1));
-            bfg_prj[0] = IDG_GetAtlasImage(filename, 1);
+            pu_bfg_prj[i] = IDG_GetAtlasImage(filename, 1);
         }
 
         // load walk textures
@@ -249,14 +249,19 @@ static void shoot(entity_t *self, gunner_t *g)
     if(app.mouse.buttons[SDL_BUTTON_LEFT] && g->reload == 0)
     {
         if(g->pickups & PU_PISTOL)
-            fire_bullet(self);
+        {
+            fire_pistol(self);
+            g->reload = PU_PISTOL_BASE_RELOAD_SPD;
+        }
         if(g->pickups & PU_BFG)
+        {
             fire_bfg(self);
-        g->reload = P_BASE_RELOAD_SPEED;
+            g->reload = PU_BFG_BASE_RELOAD_SPD;
+        }
     }
 }
 
-static void fire_bullet(entity_t *self)
+static void fire_pistol(entity_t *self)
 {
     bullet_t *b;
     int base_angle;
@@ -264,8 +269,8 @@ static void fire_bullet(entity_t *self)
     b            = spawn_bullet(self);
     b->type_flag = PU_PISTOL;
     b->texture   = bullet;
-    b->damage    = 1;
-    b->life      = (FPS*2);
+    b->damage    = PU_PISTOL_BASE_DMG;
+    b->life      = (FPS*PU_PISTOL_BASE_LIFE);
     IDG_CreateBulletHitbox(b, HB_RECT);
 
     b->x   = (self->x+(self->texture->rect.w/2));
@@ -273,8 +278,8 @@ static void fire_bullet(entity_t *self)
 
     IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
     
-    b->dx *= P_BASE_BULLET_SPEED;
-    b->dy *= P_BASE_BULLET_SPEED;
+    b->dx *= PU_PISTOL_BASE_PRJ_SPD;
+    b->dy *= PU_PISTOL_BASE_PRJ_SPD;
 }
 
 static void fire_bfg(entity_t *self)
@@ -284,9 +289,9 @@ static void fire_bfg(entity_t *self)
 
     b            = spawn_bullet(b);
     b->type_flag = PU_BFG;
-    b->texture   = bfg_prj[0];
-    b->damage    = 1;
-    b->life      = (FPS*2);
+    b->texture   = pu_bfg_prj[0];
+    b->damage    = PU_BFG_BASE_DMG;
+    b->life      = (FPS*PU_BFG_BASE_LIFE);
     IDG_CreateBulletHitbox(b, HB_SPH);
 
     b->x = self->x;
@@ -294,8 +299,8 @@ static void fire_bfg(entity_t *self)
 
     IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
 
-    b->dx *= PU_BASE_BFG_SPEED;
-    b->dy *= PU_BASE_BFG_SPEED;
+    b->dx *= PU_BFG_BASE_PRJ_SPD;
+    b->dy *= PU_BFG_BASE_PRJ_SPD;
 }
 
 static int is_control(int type)

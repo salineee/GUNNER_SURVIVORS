@@ -124,22 +124,47 @@ enum
 
 /* ENTITY FLAGS */
 #define EF_NONE     		    0
-#define EF_WEIGHTLESS          (2 << 0)
-#define EF_SOLID               (2 << 1)
-#define EF_INTERACTIVE         (2 << 2)
-#define EF_BLOCKS_LOS          (2 << 3)
-#define EF_BOUNCES             (2 << 4)
-#define EF_UNIQUE              (2 << 5)
-#define EF_REQUIRED            (2 << 6)
+#define EF_WEIGHTLESS          (2<<0)
+#define EF_SOLID               (2<<1)
+#define EF_INTERACTIVE         (2<<2)
+#define EF_BLOCKS_LOS          (2<<3)
+#define EF_BOUNCES             (2<<4)
+#define EF_UNIQUE              (2<<5)
+#define EF_REQUIRED            (2<<6)
 
-/* PICKUP FLAGS */
+/* PASSIVE POWERUP FLAGS */
+#define PU_DRONE               (2<<5)
+
+/* WEAPON POWERUP FLAGS */
 #define PU_NONE                 0
-#define PU_MAGNET              (2 << 0)
-#define PU_PISTOL              (2 << 1)
-#define PU_SHOTGUN             (2 << 2)
-#define PU_ROCKET              (2 << 3)
-#define PU_BFG                 (2 << 4)
-#define PU_DRONE               (2 << 5)
+#define PU_MAGNET              (2<<0)
+#define PU_PISTOL              (2<<1)
+#define PU_SHOTGUN             (2<<2)
+#define PU_ROCKET              (2<<3)
+#define PU_BFG                 (2<<4)
+
+/* POWERUP STATS */
+// TODO - refactor this all into bullets.c/h
+
+// pistol
+#define PU_PISTOL_BASE_LIFE       2
+#define PU_PISTOL_BASE_DMG        1
+#define PU_PISTOL_BASE_MAX_AMMO  -1 // TODO - treat -1 as infinite. curr unused
+#define PU_PISTOL_BASE_RELOAD_SPD 20
+#define PU_PISTOL_BASE_PRJ_SPD    12
+
+// BFG
+#define PU_BFG_BASE_LIFE          2
+#define PU_BFG_BASE_DMG          -1 // TODO - treat -1 as instakill/gib
+#define PU_BFG_BASE_MAX_AMMO      3
+#define PU_BFG_BASE_RELOAD_SPD    50
+#define PU_BFG_BASE_PRJ_SPD       4
+#define PU_BFG_PRJ_ANIM_FRAMES    5
+#define PU_BFG_PRJ_ANIM_TIME      12
+#define PU_BFG_IMPACT_ANIM_FRAMES 10
+#define PU_BFG_IMPACT_ANIM_TIME   12
+#define PU_BFG_TRACER_RANGE       500
+#define PU_BFG_BASE_MAX_TRACERS   3
 
 /* PLAYER STUFF */
 #define P_BASE_TRGT_XP          10
