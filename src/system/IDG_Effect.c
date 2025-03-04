@@ -9,7 +9,7 @@
 extern app_t   app;
 extern stage_t stage;
 
-static atlas_image_t *pu_bfg_impact[PU_BFG_IMPACT_ANIM_FRAMES];
+static atlas_image_t *pu_bfg_impact[WPN_BFG_IMPACT_ANIM_FRAMES];
 
 void IDG_InitEffects(void)
 {
@@ -19,7 +19,7 @@ void IDG_InitEffects(void)
     if(pu_bfg_impact[0] == NULL)
     {
         char filename[MAX_FILENAME_LENGTH];
-        for(int i=0; i<PU_BFG_IMPACT_ANIM_FRAMES; i++)
+        for(int i=0; i<WPN_BFG_IMPACT_ANIM_FRAMES; i++)
         {
             sprintf(filename, "data/gfx/effects/bfg_impact/tile%d.png", (i+1));
             pu_bfg_impact[i] = IDG_GetAtlasImage(filename, 1);

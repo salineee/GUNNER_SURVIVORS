@@ -138,7 +138,7 @@ typedef struct
     int    curr_xp;   // current xp
     int    target_xp; // xp til next level
     int    weapon_type;
-    int    pickups;
+    int    powerup_type;
     double reload;
 } gunner_t;
 
@@ -153,7 +153,7 @@ typedef struct
 
 struct Bullet
 {
-    int            type_flag;
+    int            type;
     double         x;
     double         y;
     double         dx;

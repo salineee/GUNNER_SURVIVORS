@@ -1,5 +1,7 @@
 #include "../IDG_Common.h"
 
+#include "../system/IDG_AnimationHandler.h"
+#include "../system/IDG_Atlas.h"
 #include "../system/IDG_Draw.h"
 #include "../system/IDG_Hitbox.h"
 #include "../system/IDG_Util.h"
@@ -7,6 +9,7 @@
 #include "../system/IDG_Quadtree.h"
 #include "../system/IDG_Effect.h"
 #include "../system/IDG_Sound.h"
+#include "../system/IDG_Util.h"
 
 #include "bullets.h"
 
@@ -17,13 +20,39 @@ static void check_collisions        (bullet_t *b);
 static void check_world_collisions  (bullet_t *b);
 static void check_entity_collisions (bullet_t *b);
 
+static void fire_pistol             (bullet_t *b);
+static void fire_shotgun            (bullet_t *b);
+static void fire_rocket             (bullet_t *b);
+static void fire_bfg                (bullet_t *b);
+
+// pistol
+static atlas_image_t *wpn_pistol_prj;
+
+// bfg
+static atlas_image_t *wpn_bfg_prj[WPN_BFG_PRJ_ANIM_FRAMES];
+
 void init_bullets(void)
 {
     memset(&stage.bullet_head, 0, sizeof(bullet_t));
     stage.bullet_tail = &stage.bullet_head;
+
+    if(wpn_pistol_prj == NULL)
+    {
+        char filename[MAX_FILENAME_LENGTH];
+
+        // pistol
+        wpn_pistol_prj = IDG_GetAtlasImage ("data/gfx/effects/plasma/tile1.png",   1);
+        
+        // bfg
+        for(int i=0; i<WPN_BFG_PRJ_ANIM_FRAMES; i++)
+        {
+            sprintf(filename, "data/gfx/effects/bfg_prj/tile%d.png", (i+1));
+            wpn_bfg_prj[i] = IDG_GetAtlasImage(filename, 1);
+        }
+    }
 }
 
-bullet_t *spawn_bullet(entity_t *owner)
+void spawn_bullet(entity_t *owner, int type)
 {
     app.dev.entity_count++;
 
@@ -33,23 +62,70 @@ bullet_t *spawn_bullet(entity_t *owner)
     stage.bullet_tail->next = b;
     stage.bullet_tail       = b;
     b->owner                = owner;
-    return b;
+    b->type                 = type;
+    b->x                    = owner->x;
+    b->y                    = owner->y;
+
+    // TODO - this will cause issues later, when enemies fire projectiles.
+    //        enemies (currently) dont have a gunner dependency.
+    gunner_t *g;
+    g = (gunner_t *)owner->data;
+
+    // TODO - something could prob go wrong here w/ empty default block
+    //        make sure all mem gets cleaned up and edgecases are handled
+    switch(type)
+    {
+    case WPN_PISTOL:
+        fire_pistol(b);
+        g->reload = WPN_PISTOL_BASE_RELOAD_SPD;
+        break;
+    // case WPN_SHOTGUN:
+    //     fire_shotgun(b);
+    //     break;
+    // case WPN_ROCKET:
+    //     fire_rocket(b);
+    //     break;
+    case WPN_BFG:
+        fire_bfg(b);
+        g->reload = WPN_BFG_BASE_RELOAD_SPD;
+        break;
+    default:
+        break;
+    }
+
+    // IDG_CreateBulletHitbox(b, HB_RECT);
 }
+
+// bullet_t *spawn_bullet(entity_t *owner, int type)
+// {
+//     app.dev.entity_count++;
+
+//     bullet_t *b;
+//     b = malloc(sizeof(bullet_t));
+//     memset(b, 0, sizeof(bullet_t));
+//     stage.bullet_tail->next = b;
+//     stage.bullet_tail       = b;
+//     b->type                 = type;
+//     b->owner                = owner;
+//     return b;
+// }
 
 void do_bullets(void)
 {
     bullet_t *b, *prev;
     prev = &stage.bullet_head;
-
+    
     for(b=stage.bullet_head.next; b!=NULL; b=b->next)
     {
         b->x       += (b->dx*app.delta_time);
         b->y       += (b->dy*app.delta_time);
         b->life    -= app.delta_time;
-
+        // animation_handler_t *ah = IDG_GetAnimationHandler(b);
+        // ah->timer  -= app.delta_time;
+        
         // IDG_UpdateHitbox(b);
         check_collisions(b);
-
+        
         if(b->life <= 0)
         {
             prev->next = b->next;
@@ -78,9 +154,9 @@ void draw_bullets(void)
             0,
             b->dx > 0 ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL
         );
-
+        
         // TODO - this belongs elsewhere
-        if(b->type_flag & PU_BFG)
+        if(b->type == WPN_BFG)
         {
             for(e=stage.entity_head.next; e!=NULL; e=e->next)
             {
@@ -91,7 +167,7 @@ void draw_bullets(void)
                     int x2 = ((e->x-stage.camera.pos.x)+(e->texture->rect.w/2));
                     int y2 = ((e->y-stage.camera.pos.y)+(e->texture->rect.h/2));
                     
-                    if((IDG_GetDistance(x1, y1, x2, y2) < PU_BFG_TRACER_RANGE))
+                    if((IDG_GetDistance(x1, y1, x2, y2) < WPN_BFG_TRACER_RANGE))
                     {
                         SDL_SetRenderDrawColor(app.renderer, 0xFF, 0xFF, 0xFF, 0xFF);
                         SDL_RenderDrawLine(app.renderer, x1, y1, x2, y2);
@@ -118,7 +194,7 @@ static void check_world_collisions(bullet_t *b)
 
 static void check_entity_collisions(bullet_t *b)
 {
-    if(b->type_flag == PU_BFG) { return; } // don't check entity collisions on BFG projectiles
+    // if(b->type == WPN_BFG) { return; } // don't check entity collisions on BFG projectiles
 
     entity_t *e, *candidates[MAX_QT_CANDIDATES];
     SDL_Rect  r;
@@ -128,7 +204,6 @@ static void check_entity_collisions(bullet_t *b)
     r.y = b->y;
     r.w = b->texture->rect.w;
     r.h = b->texture->rect.h;
-    // printf("BX: %d, Y: %d, W: %d, H: %d, DAMAGE: %d\n", b->hitbox.x, b->hitbox.y, b->hitbox.w, b->hitbox.h, b->damage);
     IDG_GetAllEntsWithin(b->x, b->y, b->texture->rect.w, b->texture->rect.h, candidates, b->owner);
 
     // for(i=0; i<MAX_QT_CANDIDATES && e!=NULL; e=candidates[++i])
@@ -162,4 +237,50 @@ void clear_bullets(void)
             free(b->hitbox);
         free(b);
     }
+}
+
+static void fire_pistol(bullet_t *b)
+{
+    b->texture = wpn_pistol_prj;
+    b->life    = (FPS*WPN_PISTOL_BASE_LIFE);
+    b->damage  = WPN_PISTOL_BASE_DMG;
+
+    b->x       = (b->owner->x+(b->owner->texture->rect.w/2));
+    b->y       = (b->owner->y+(b->owner->texture->rect.h/2));
+
+    IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
+    
+    b->dx *= WPN_PISTOL_BASE_PRJ_SPD;
+    b->dy *= WPN_PISTOL_BASE_PRJ_SPD;
+
+    IDG_CreateBulletHitbox(b, HB_RECT);
+}
+
+// static void fire_shotgun(bullet_t *b)
+// {
+//     printf("SHOTGUN?\n");
+//     // IDG_CreateBulletHitbox(b, HB_RECT);
+// }
+
+// static void fire_rocket(bullet_t *b)
+// {
+//     printf("ROCKET?\n");
+//     // IDG_CreateBulletHitbox(b, HB_RECT);
+// }
+
+static void fire_bfg(bullet_t *b)
+{
+    b->texture = wpn_bfg_prj[0];
+    b->life    = (FPS*WPN_BFG_BASE_LIFE);
+    b->damage  = WPN_BFG_BASE_DMG;
+
+    b->x       = (b->owner->x+(b->owner->texture->rect.w/2));
+    b->y       = (b->owner->y+(b->owner->texture->rect.h/2));
+
+    IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
+    
+    b->dx *= WPN_BFG_BASE_PRJ_SPD;
+    b->dy *= WPN_BFG_BASE_PRJ_SPD;
+
+    IDG_CreateBulletHitbox(b, HB_RECT);
 }

@@ -1,9 +1,9 @@
 #ifndef __XP__
 #define __XP__
 
-#define XP_SM_BOB        (rand()%FPS);
-#define XP_MD_BOB        (rand()%FPS);
-#define XP_LG_BOB        (rand()%FPS);
+#define XP_SM_BOB        (rand()%FPS)
+#define XP_MD_BOB        (rand()%FPS)
+#define XP_LG_BOB        (rand()%FPS)
 
 #define XP_SM_AMT         1
 #define XP_MD_AMT         10

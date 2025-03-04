@@ -1,5 +1,6 @@
 #include "../IDG_Common.h"
 
+#include "../system/IDG_AnimationHandler.h"
 #include "../system/IDG_Atlas.h"
 #include "../system/IDG_Draw.h"
 #include "../system/IDG_Effect.h"
@@ -38,9 +39,7 @@ void init_goblin(entity_t *e)
         goblin_init = 1;
     }
 
-    animation_handler_t *ah;
-    ah = malloc(sizeof(animation_handler_t));
-    memset(ah, 0, sizeof(animation_handler_t));
+    animation_handler_t *ah = IDG_CreateAnimationHandler(G_ANIM_TIME, 0);
 
     enemy_t *em;
     em = malloc(sizeof(enemy_t));

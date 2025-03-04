@@ -132,39 +132,38 @@ enum
 #define EF_UNIQUE              (2<<5)
 #define EF_REQUIRED            (2<<6)
 
-/* PASSIVE POWERUP FLAGS */
-#define PU_DRONE               (2<<5)
+/* WEAPON FLAGS */
+enum
+{
+    WPN_PISTOL,
+    WPN_SHOTGUN,
+    WPN_ROCKET,
+    WPN_BFG,
+    WPN_MAX
+};
 
-/* WEAPON POWERUP FLAGS */
-#define PU_NONE                 0
-#define PU_MAGNET              (2<<0)
-#define PU_PISTOL              (2<<1)
-#define PU_SHOTGUN             (2<<2)
-#define PU_ROCKET              (2<<3)
-#define PU_BFG                 (2<<4)
-
-/* POWERUP STATS */
+/* WEAPON STATS */
 // TODO - refactor this all into bullets.c/h
 
 // pistol
-#define PU_PISTOL_BASE_LIFE       2
-#define PU_PISTOL_BASE_DMG        1
-#define PU_PISTOL_BASE_MAX_AMMO  -1 // TODO - treat -1 as infinite. curr unused
-#define PU_PISTOL_BASE_RELOAD_SPD 20
-#define PU_PISTOL_BASE_PRJ_SPD    12
+#define WPN_PISTOL_BASE_LIFE       2
+#define WPN_PISTOL_BASE_DMG        1
+#define WPN_PISTOL_BASE_MAX_AMMO  -1 // TODO - treat -1 as infinite. curr unused
+#define WPN_PISTOL_BASE_RELOAD_SPD 20
+#define WPN_PISTOL_BASE_PRJ_SPD    12
 
 // BFG
-#define PU_BFG_BASE_LIFE          2
-#define PU_BFG_BASE_DMG          -1 // TODO - treat -1 as instakill/gib
-#define PU_BFG_BASE_MAX_AMMO      3
-#define PU_BFG_BASE_RELOAD_SPD    50
-#define PU_BFG_BASE_PRJ_SPD       4
-#define PU_BFG_PRJ_ANIM_FRAMES    5
-#define PU_BFG_PRJ_ANIM_TIME      12
-#define PU_BFG_IMPACT_ANIM_FRAMES 10
-#define PU_BFG_IMPACT_ANIM_TIME   12
-#define PU_BFG_TRACER_RANGE       500
-#define PU_BFG_BASE_MAX_TRACERS   3
+#define WPN_BFG_BASE_LIFE          2
+#define WPN_BFG_BASE_DMG          -1 // TODO - treat -1 as instakill/gib
+#define WPN_BFG_BASE_MAX_AMMO      3
+#define WPN_BFG_BASE_RELOAD_SPD    50
+#define WPN_BFG_BASE_PRJ_SPD       4
+#define WPN_BFG_PRJ_ANIM_FRAMES    5
+#define WPN_BFG_PRJ_ANIM_TIME      12
+#define WPN_BFG_IMPACT_ANIM_FRAMES 10
+#define WPN_BFG_IMPACT_ANIM_TIME   12
+#define WPN_BFG_TRACER_RANGE       500
+#define WPN_BFG_BASE_MAX_TRACERS   3
 
 /* PLAYER STUFF */
 #define P_BASE_TRGT_XP          10

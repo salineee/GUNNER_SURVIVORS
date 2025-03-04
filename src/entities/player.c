@@ -39,10 +39,6 @@ static atlas_image_t *p_hurt_n;
 static atlas_image_t *p_hurt_s;
 static atlas_image_t *p_hurt_ew;
 
-// projectile textures
-static atlas_image_t *bullet;
-static atlas_image_t *pu_bfg_prj   [PU_BFG_PRJ_ANIM_FRAMES];
-
 extern app_t   app;
 extern game_t  game;
 extern stage_t stage;
@@ -68,14 +64,6 @@ void init_player(entity_t *e)
         p_hurt_n  = IDG_GetAtlasImage ("data/gfx/player/p_hurt_n/tile1.png",  1);
         p_hurt_s  = IDG_GetAtlasImage ("data/gfx/player/p_hurt_s/tile1.png",  1);
         p_hurt_ew = IDG_GetAtlasImage ("data/gfx/player/p_hurt_ew/tile1.png", 1);
-
-        // projectile textures
-        bullet    = IDG_GetAtlasImage ("data/gfx/effects/plasma/tile1.png",   1);
-        for(int i=0; i<PU_BFG_PRJ_ANIM_FRAMES; i++)
-        {
-            sprintf(filename, "data/gfx/effects/bfg_prj/tile%d.png", (i+1));
-            pu_bfg_prj[i] = IDG_GetAtlasImage(filename, 1);
-        }
 
         // load walk textures
         for(int i=0; i<P_WALK_ANIM_FRAMES; i++)
@@ -113,6 +101,8 @@ void init_player(entity_t *e)
     }
 
     // set mallocs
+    animation_handler_t *ah = IDG_CreateAnimationHandler(P_ANIM_TIME, 0);
+
     gunner_t *g;
     g = malloc(sizeof(gunner_t));
     memset(g, 0, sizeof(gunner_t));
@@ -123,14 +113,14 @@ void init_player(entity_t *e)
     g->target_xp         = P_BASE_TRGT_XP; // base xp required to levelup    
     g->curr_xp           = P_BASE_XP;      // base xp - 0
     g->level             = P_BASE_LEVEL;   // base level - 1
-    // g->pickups           = PU_PISTOL;
-    g->pickups           = PU_BFG;
+    g->weapon_type       = WPN_PISTOL;
     e->texture           = p_idle_s;
     e->flags             = EF_WEIGHTLESS;
     e->friction          = P_FRICTION;
     e->radius            = 64;
     
     // set inherited structs
+    e->animation_handler = ah;
     e->data              = g;
     
     // set callbacks
@@ -138,8 +128,7 @@ void init_player(entity_t *e)
     e->draw              = draw;
     e->die               = die;
     
-    IDG_CreateAnimationHandler (e, P_ANIM_TIME);
-    IDG_CreateHitbox           (e, HB_SPH);
+    IDG_CreateHitbox(e, HB_SPH);
     stage.player = e;
 }
 
@@ -150,8 +139,32 @@ static void tick(entity_t *self) {
 
     move             (self, ah);
     shoot            (self, g);
-    // do_levelup       (self, g);
     IDG_UpdateHitbox (self);
+
+    // weapon selection keys
+    if(app.keyboard[SDL_SCANCODE_1])
+    {
+        app.keyboard[SDL_SCANCODE_1] = 0;
+        g->weapon_type = WPN_PISTOL;
+    }
+
+    if(app.keyboard[SDL_SCANCODE_2])
+    {
+        app.keyboard[SDL_SCANCODE_2] = 0;
+        g->weapon_type = WPN_SHOTGUN;
+    }
+    
+    if(app.keyboard[SDL_SCANCODE_3])
+    {
+        app.keyboard[SDL_SCANCODE_3] = 0;
+        g->weapon_type = WPN_ROCKET;
+    }
+
+    if(app.keyboard[SDL_SCANCODE_4])
+    {
+        app.keyboard[SDL_SCANCODE_4] = 0;
+        g->weapon_type = WPN_BFG;
+    }
 }
 
 static void draw(entity_t *self) 
@@ -169,6 +182,7 @@ static void move(entity_t *self, animation_handler_t *ah)
     self->dx = self->dy = 0; // friction prevents idle animations from playing
     // TODO - why doesnt is_control(...) work?
 
+    // movement keys
     if(app.keyboard[SDL_SCANCODE_A])
     {
         self->dx      = -P_WALK_SPEED;
@@ -247,61 +261,30 @@ static void shoot(entity_t *self, gunner_t *g)
 {
     g->reload = MAX((g->reload-app.delta_time), 0);
     if(app.mouse.buttons[SDL_BUTTON_LEFT] && g->reload == 0)
-    {
-        if(g->pickups & PU_PISTOL)
-        {
-            fire_pistol(self);
-            g->reload = PU_PISTOL_BASE_RELOAD_SPD;
-        }
-        if(g->pickups & PU_BFG)
-        {
-            fire_bfg(self);
-            g->reload = PU_BFG_BASE_RELOAD_SPD;
-        }
-    }
+        spawn_bullet(self, g->weapon_type);
+
 }
 
-static void fire_pistol(entity_t *self)
-{
-    bullet_t *b;
-    int base_angle;
-    
-    b            = spawn_bullet(self);
-    b->type_flag = PU_PISTOL;
-    b->texture   = bullet;
-    b->damage    = PU_PISTOL_BASE_DMG;
-    b->life      = (FPS*PU_PISTOL_BASE_LIFE);
-    IDG_CreateBulletHitbox(b, HB_RECT);
+// static void fire_bfg(entity_t *self)
+// {
+//     bullet_t *b;
+//     int base_angle;
 
-    b->x   = (self->x+(self->texture->rect.w/2));
-    b->y   = (self->y+(self->texture->rect.h/2));
+//     b            = spawn_bullet(b, WPN_BFG);
+//     b->type    = WPN_BFG;
+//     b->texture   = wpn_bfg_prj[0];
+//     b->damage    = WPN_BFG_BASE_DMG;
+//     b->life      = (FPS*WPN_BFG_BASE_LIFE);
+//     IDG_CreateBulletHitbox(b, HB_SPH);
 
-    IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
-    
-    b->dx *= PU_PISTOL_BASE_PRJ_SPD;
-    b->dy *= PU_PISTOL_BASE_PRJ_SPD;
-}
+//     b->x = self->x;
+//     b->y = self->y;
 
-static void fire_bfg(entity_t *self)
-{
-    bullet_t *b;
-    int base_angle;
+//     IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
 
-    b            = spawn_bullet(b);
-    b->type_flag = PU_BFG;
-    b->texture   = pu_bfg_prj[0];
-    b->damage    = PU_BFG_BASE_DMG;
-    b->life      = (FPS*PU_BFG_BASE_LIFE);
-    IDG_CreateBulletHitbox(b, HB_SPH);
-
-    b->x = self->x;
-    b->y = self->y;
-
-    IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
-
-    b->dx *= PU_BFG_BASE_PRJ_SPD;
-    b->dy *= PU_BFG_BASE_PRJ_SPD;
-}
+//     b->dx *= WPN_BFG_BASE_PRJ_SPD;
+//     b->dy *= WPN_BFG_BASE_PRJ_SPD;
+// }
 
 static int is_control(int type)
 {

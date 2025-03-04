@@ -59,6 +59,7 @@
   "files.associations": {
     "idg_entities.h": "c",
     "idg_hitbox.h": "c",
-    "idg_common.h": "c"
+    "idg_common.h": "c",
+    "idg_animationhandler.h": "c"
   }
 }

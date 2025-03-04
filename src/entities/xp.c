@@ -1,5 +1,6 @@
 #include "../IDG_Common.h"
 
+#include "../system/IDG_AnimationHandler.h"
 #include "../system/IDG_Atlas.h"
 #include "../system/IDG_Draw.h"
 #include "../system/IDG_Hitbox.h"
@@ -40,12 +41,7 @@ void init_xp_sm(entity_t *e)
         xp_sm_init = 1;
     }
 
-    animation_handler_t *ah;
-    ah = malloc(sizeof(animation_handler_t));
-    memset(ah, 0, sizeof(animation_handler_t));
-
-    ah->timer            = XP_SM_ANIM_TIME;
-    ah->bob_value        = XP_SM_BOB;
+    animation_handler_t *ah = IDG_CreateAnimationHandler(XP_SM_ANIM_TIME, XP_SM_BOB);
     e->animation_handler = ah;
 
     e->texture = xp_sm_texture[0];
@@ -74,11 +70,7 @@ void init_xp_md(entity_t *e)
         xp_md_init = 1;
     }
 
-    animation_handler_t *ah;
-    ah = malloc(sizeof(animation_handler_t));
-    memset(ah, 0, sizeof(animation_handler_t));
-    ah->timer            = XP_MD_ANIM_TIME;
-    ah->bob_value        = XP_MD_BOB;
+    animation_handler_t *ah = IDG_CreateAnimationHandler(XP_MD_ANIM_TIME, XP_MD_BOB);
     e->animation_handler = ah;
 
     e->texture = xp_md_texture[0];
@@ -107,11 +99,7 @@ void init_xp_lg(entity_t *e)
         xp_lg_init = 1;
     }
 
-    animation_handler_t *ah;
-    ah = malloc(sizeof(animation_handler_t));
-    memset(ah, 0, sizeof(animation_handler_t));
-    ah->timer            = XP_LG_ANIM_TIME;
-    ah->bob_value        = XP_LG_BOB;
+    animation_handler_t *ah = IDG_CreateAnimationHandler(XP_LG_ANIM_TIME, XP_LG_BOB);
     e->animation_handler = ah;
 
     e->texture = xp_lg_texture[0];
