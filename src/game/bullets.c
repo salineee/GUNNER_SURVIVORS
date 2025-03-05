@@ -90,9 +90,10 @@ void fire_weapon(entity_t *owner, int type)
         fire_shotgun(owner, type);
         g->reload = WPN_SHOTGUN_BASE_RELOAD_SPD;
         break;
-    // case WPN_ROCKET:
-    //     fire_rocket(owner, type);
-    //     break;
+    case WPN_ROCKET:
+        fire_rocket(owner, type);
+        g->reload = WPN_ROCKET_BASE_RELOAD_SPD;
+        break;
     case WPN_BFG:
         fire_bfg(owner, type);
         g->reload = WPN_BFG_BASE_RELOAD_SPD;
@@ -107,8 +108,20 @@ void do_bullets(void)
     
     for(b=stage.bullet_head.next; b!=NULL; b=b->next)
     {
-        b->x       += (b->dx*app.delta_time);
-        b->y       += (b->dy*app.delta_time);
+        if(b->type == WPN_ROCKET && b->target != NULL)
+        {
+            double dx = IDG_GetAngle(b->x, b->y, b->target->x, b->target->y); 
+            double dy = IDG_GetAngle(b->x, b->y, b->target->x, b->target->y); 
+            printf("DX: %lf, DY: %lf\n", dx, dy);
+            b->x += (dx*app.delta_time);
+            b->y += (dy*app.delta_time);
+        }
+        else
+        {
+            b->x += (b->dx*app.delta_time);
+            b->y += (b->dy*app.delta_time);
+        }
+
         b->life    -= app.delta_time;
         // animation_handler_t *ah = IDG_GetAnimationHandler(b);
         // ah->timer  -= app.delta_time;
@@ -301,10 +314,36 @@ static void fire_shotgun(entity_t *owner, int type)
     }
 }
 
-// static void fire_rocket(entity_t *owner, int type)
-// {
-//     // IDG_CreateBulletHitbox(b, HB_RECT);
-// }
+static void fire_rocket(entity_t *owner, int type)
+{
+    bullet_t *b = spawn_bullet(owner, type);
+
+    b->texture = wpn_pistol_prj;
+    b->life    = (FPS*WPN_ROCKET_BASE_LIFE);
+    b->damage  = WPN_ROCKET_BASE_DMG;
+
+    // Get entity closest to mouse
+    // This needs to be thorougly tested.
+    // Might be better to check for mouse collision with entities instead
+    entity_t *e, *closest_ent;
+    int min_dist = 0;
+    for(e=stage.entity_head.next; e!=NULL; e=e->next)
+    {
+        int dist = IDG_GetDistance(app.mouse.x, app.mouse.y, e->x, e->y);
+        if(dist < min_dist || min_dist == 0)
+        { 
+            min_dist    = dist;
+            closest_ent = e;
+        }
+    }
+    if(closest_ent != NULL) { b->target = closest_ent; }
+
+    IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
+    b->dx *= WPN_ROCKET_BASE_PRJ_SPD;
+    b->dy *= WPN_ROCKET_BASE_PRJ_SPD;
+
+    IDG_CreateBulletHitbox(b, HB_RECT);
+}
 
 static void fire_bfg(entity_t *owner, int type)
 {

@@ -162,6 +162,7 @@ struct Bullet
     int            damage;
     // SDL_Rect       hitbox;
     entity_t      *owner;
+    entity_t      *target; // for heatseeking rockets
     atlas_image_t *texture;
     void         (*animation_handler);
     void         (*hitbox);

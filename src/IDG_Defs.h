@@ -161,6 +161,13 @@ enum
 #define WPN_SHOTGUN_BASE_PRJ_COUNT  3
 #define WPN_SHOTGUN_BASE_PRJ_SPREAD 12
 
+// ROCKET
+#define WPN_ROCKET_BASE_LIFE        5
+#define WPN_ROCKET_BASE_DMG         50
+#define WPN_ROCKET_BASE_MAX_AMMO    12
+#define WPN_ROCKET_BASE_RELOAD_SPD  50
+#define WPN_ROCKET_BASE_PRJ_SPD     4
+
 // BFG
 #define WPN_BFG_BASE_LIFE           2
 #define WPN_BFG_BASE_DMG           -1 // TODO - treat -1 as instakill/gib
@@ -175,10 +182,10 @@ enum
 #define WPN_BFG_BASE_MAX_TRACERS    3
 
 /* PLAYER STUFF */
-#define P_BASE_TRGT_XP          10
-#define P_XP_MODIFIER           1.5
-#define P_BASE_XP               0
-#define P_BASE_LEVEL            1
+#define P_BASE_TRGT_XP              10
+#define P_XP_MODIFIER               1.5
+#define P_BASE_XP                   0
+#define P_BASE_LEVEL                1
 
 // definitions for physics
 // currently unused - intended to be used when
