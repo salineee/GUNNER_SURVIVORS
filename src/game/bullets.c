@@ -66,8 +66,8 @@ static bullet_t *spawn_bullet(entity_t *owner, int type)
     stage.bullet_tail       = b;
     b->owner                = owner;
     b->type                 = type;
-    b->x                    = owner->x;
-    b->y                    = owner->y;
+    b->x                    = (owner->x+(owner->texture->rect.w/2));
+    b->y                    = (owner->y+(owner->texture->rect.h/2));
     return b;
 }
 
@@ -88,6 +88,7 @@ void fire_weapon(entity_t *owner, int type)
         break;
     case WPN_SHOTGUN:
         fire_shotgun(owner, type);
+        g->reload = WPN_SHOTGUN_BASE_RELOAD_SPD;
         break;
     // case WPN_ROCKET:
     //     fire_rocket(owner, type);
@@ -96,8 +97,6 @@ void fire_weapon(entity_t *owner, int type)
         fire_bfg(owner, type);
         g->reload = WPN_BFG_BASE_RELOAD_SPD;
         break;
-    // default:
-    //     break;
     }
 }
 
@@ -253,6 +252,8 @@ void clear_bullets(void)
 
         if(b->hitbox != NULL)
             free(b->hitbox);
+        if(b->animation_handler != NULL)
+            free(b->animation_handler);
         free(b);
     }
 }
@@ -265,11 +266,7 @@ static void fire_pistol(entity_t *owner, int type)
     b->life    = (FPS*WPN_PISTOL_BASE_LIFE);
     b->damage  = WPN_PISTOL_BASE_DMG;
 
-    b->x       = (b->owner->x+(b->owner->texture->rect.w/2));
-    b->y       = (b->owner->y+(b->owner->texture->rect.h/2));
-
     IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
-    
     b->dx *= WPN_PISTOL_BASE_PRJ_SPD;
     b->dy *= WPN_PISTOL_BASE_PRJ_SPD;
 
@@ -278,13 +275,30 @@ static void fire_pistol(entity_t *owner, int type)
 
 static void fire_shotgun(entity_t *owner, int type)
 {
-    bullet_t *b = spawn_bullet(owner, type);
+    bullet_t *b;
+    double    dx, dy;
+    int       dest_x, dest_y;
 
-    b->texture = wpn_pistol_prj;
-    b->life    = (FPS*WPN_SHOTGUN_BASE_LIFE);
-    b->damage  = WPN_SHOTGUN_BASE_DMG;
+    IDG_GetSlope(app.mouse.x, app.mouse.y, (owner->x-stage.camera.pos.x), (owner->y-stage.camera.pos.y), &dx, &dy);
+    dx = (owner->x+(dx*128));
+    dy = (owner->y+(dy*128));
 
-    IDG_CreateBulletHitbox(b, HB_RECT);
+    for(int i=0; i<WPN_SHOTGUN_BASE_PRJ_COUNT; i++)
+    {
+        b = spawn_bullet(owner, type);
+
+        b->texture = wpn_pistol_prj;
+        b->life    = (FPS*WPN_SHOTGUN_BASE_LIFE);
+        b->damage  = WPN_SHOTGUN_BASE_DMG;
+        dest_x     = (dx+((rand()%WPN_SHOTGUN_BASE_PRJ_SPREAD)-(rand()%WPN_SHOTGUN_BASE_PRJ_SPREAD)));
+        dest_y     = (dy+((rand()%WPN_SHOTGUN_BASE_PRJ_SPREAD)-(rand()%WPN_SHOTGUN_BASE_PRJ_SPREAD)));
+        
+        IDG_GetSlope(dest_x, dest_y, b->x, b->y, &b->dx, &b->dy);
+        b->dx *= WPN_SHOTGUN_BASE_PRJ_SPD;
+        b->dy *= WPN_SHOTGUN_BASE_PRJ_SPD;
+
+        IDG_CreateBulletHitbox(b, HB_RECT);
+    }
 }
 
 // static void fire_rocket(entity_t *owner, int type)
@@ -300,11 +314,7 @@ static void fire_bfg(entity_t *owner, int type)
     b->life    = (FPS*WPN_BFG_BASE_LIFE);
     b->damage  = WPN_BFG_BASE_DMG;
 
-    b->x       = (b->owner->x+(b->owner->texture->rect.w/2));
-    b->y       = (b->owner->y+(b->owner->texture->rect.h/2));
-
     IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
-    
     b->dx *= WPN_BFG_BASE_PRJ_SPD;
     b->dy *= WPN_BFG_BASE_PRJ_SPD;
 
