@@ -19,11 +19,14 @@ extern stage_t stage;
 static void check_collisions        (bullet_t *b);
 static void check_world_collisions  (bullet_t *b);
 static void check_entity_collisions (bullet_t *b);
+static void check_aoe_collisions    (bullet_t *b);
 
-static void fire_pistol             (bullet_t *b);
-static void fire_shotgun            (bullet_t *b);
-static void fire_rocket             (bullet_t *b);
-static void fire_bfg                (bullet_t *b);
+static bullet_t *spawn_bullet       (entity_t *owner, int type);
+
+static void fire_pistol             (entity_t *owner, int type);
+static void fire_shotgun            (entity_t *owner, int type);
+static void fire_rocket             (entity_t *owner, int type);
+static void fire_bfg                (entity_t *owner, int type);
 
 // pistol
 static atlas_image_t *wpn_pistol_prj;
@@ -52,7 +55,7 @@ void init_bullets(void)
     }
 }
 
-void spawn_bullet(entity_t *owner, int type)
+static bullet_t *spawn_bullet(entity_t *owner, int type)
 {
     app.dev.entity_count++;
 
@@ -65,7 +68,11 @@ void spawn_bullet(entity_t *owner, int type)
     b->type                 = type;
     b->x                    = owner->x;
     b->y                    = owner->y;
+    return b;
+}
 
+void fire_weapon(entity_t *owner, int type)
+{
     // TODO - this will cause issues later, when enemies fire projectiles.
     //        enemies (currently) dont have a gunner dependency.
     gunner_t *g;
@@ -76,39 +83,23 @@ void spawn_bullet(entity_t *owner, int type)
     switch(type)
     {
     case WPN_PISTOL:
-        fire_pistol(b);
+        fire_pistol(owner, type);
         g->reload = WPN_PISTOL_BASE_RELOAD_SPD;
         break;
-    // case WPN_SHOTGUN:
-    //     fire_shotgun(b);
-    //     break;
+    case WPN_SHOTGUN:
+        fire_shotgun(owner, type);
+        break;
     // case WPN_ROCKET:
-    //     fire_rocket(b);
+    //     fire_rocket(owner, type);
     //     break;
     case WPN_BFG:
-        fire_bfg(b);
+        fire_bfg(owner, type);
         g->reload = WPN_BFG_BASE_RELOAD_SPD;
         break;
-    default:
-        break;
+    // default:
+    //     break;
     }
-
-    // IDG_CreateBulletHitbox(b, HB_RECT);
 }
-
-// bullet_t *spawn_bullet(entity_t *owner, int type)
-// {
-//     app.dev.entity_count++;
-
-//     bullet_t *b;
-//     b = malloc(sizeof(bullet_t));
-//     memset(b, 0, sizeof(bullet_t));
-//     stage.bullet_tail->next = b;
-//     stage.bullet_tail       = b;
-//     b->type                 = type;
-//     b->owner                = owner;
-//     return b;
-// }
 
 void do_bullets(void)
 {
@@ -128,11 +119,11 @@ void do_bullets(void)
         
         if(b->life <= 0)
         {
+            if(b->type == WPN_BFG) { check_aoe_collisions(b); }
+
             prev->next = b->next;
             if(b == stage.bullet_tail)
-            {
                 stage.bullet_tail = prev;
-            }
             app.dev.entity_count--;
             free(b);
             b = prev;
@@ -194,7 +185,7 @@ static void check_world_collisions(bullet_t *b)
 
 static void check_entity_collisions(bullet_t *b)
 {
-    // if(b->type == WPN_BFG) { return; } // don't check entity collisions on BFG projectiles
+    if(b->type == WPN_BFG) { return; } // don't check entity collisions on BFG projectiles
 
     entity_t *e, *candidates[MAX_QT_CANDIDATES];
     SDL_Rect  r;
@@ -216,12 +207,39 @@ static void check_entity_collisions(bullet_t *b)
         {
             if(!e->dead && e->take_damage)
             {
-                e->take_damage(e, b->damage, b->owner);
+                e->take_damage(e, (b->damage == -1 ? 9999 : b->damage), b->owner);
             }
             b->life = 0;
             return;
         }
     }
+}
+
+static void check_aoe_collisions(bullet_t *b)
+{
+    // TODO - fix and implement quadtree here
+    entity_t *e;
+    for(e=stage.entity_head.next; e!=NULL; e=e->next)
+    {
+        app.dev.collision_checks++;
+        hitbox_t *hb = IDG_GetHitbox(e);
+
+        int x1   = ((b->x-stage.camera.pos.x)+(b->texture->rect.w/2));
+        int y1   = ((b->y-stage.camera.pos.y)+(b->texture->rect.h/2));
+        int x2   = ((e->x-stage.camera.pos.x)+(e->texture->rect.w/2));
+        int y2   = ((e->y-stage.camera.pos.y)+(e->texture->rect.h/2));
+        int dist = IDG_GetDistance(x1, y1, x2, y2);
+        
+        if(((e->flags & EF_SOLID) || e->take_damage != NULL) && IDG_SphCollide(dist, WPN_BFG_TRACER_RANGE, hb->radius))
+        {
+            if(!e->dead && e->take_damage)
+            {
+                e->take_damage(e, (b->damage == -1 ? 9999 : b->damage), b->owner);
+            }
+        }
+    }
+    b->life = 0;
+    return;
 }
 
 void clear_bullets(void)
@@ -239,8 +257,10 @@ void clear_bullets(void)
     }
 }
 
-static void fire_pistol(bullet_t *b)
+static void fire_pistol(entity_t *owner, int type)
 {
+    bullet_t *b = spawn_bullet(owner, type);
+
     b->texture = wpn_pistol_prj;
     b->life    = (FPS*WPN_PISTOL_BASE_LIFE);
     b->damage  = WPN_PISTOL_BASE_DMG;
@@ -256,20 +276,26 @@ static void fire_pistol(bullet_t *b)
     IDG_CreateBulletHitbox(b, HB_RECT);
 }
 
-// static void fire_shotgun(bullet_t *b)
-// {
-//     printf("SHOTGUN?\n");
-//     // IDG_CreateBulletHitbox(b, HB_RECT);
-// }
-
-// static void fire_rocket(bullet_t *b)
-// {
-//     printf("ROCKET?\n");
-//     // IDG_CreateBulletHitbox(b, HB_RECT);
-// }
-
-static void fire_bfg(bullet_t *b)
+static void fire_shotgun(entity_t *owner, int type)
 {
+    bullet_t *b = spawn_bullet(owner, type);
+
+    b->texture = wpn_pistol_prj;
+    b->life    = (FPS*WPN_SHOTGUN_BASE_LIFE);
+    b->damage  = WPN_SHOTGUN_BASE_DMG;
+
+    IDG_CreateBulletHitbox(b, HB_RECT);
+}
+
+// static void fire_rocket(entity_t *owner, int type)
+// {
+//     // IDG_CreateBulletHitbox(b, HB_RECT);
+// }
+
+static void fire_bfg(entity_t *owner, int type)
+{
+    bullet_t *b = spawn_bullet(owner, type);
+
     b->texture = wpn_bfg_prj[0];
     b->life    = (FPS*WPN_BFG_BASE_LIFE);
     b->damage  = WPN_BFG_BASE_DMG;

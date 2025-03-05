@@ -5,7 +5,7 @@ void init_bullets  (void);
 void do_bullets    (void);
 void draw_bullets  (void);
 void clear_bullets (void);
-void spawn_bullet  (entity_t *owner, int type);
+void fire_weapon   (entity_t *owner, int type);
 // bullet_t *spawn_bullet  (entity_t *owner, int type);
 
 #endif // __BULLETS__

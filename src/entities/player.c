@@ -56,9 +56,6 @@ void init_player(entity_t *e)
         p_idle_n  = IDG_GetAtlasImage ("data/gfx/player/p_idle_n/tile1.png",  1);
         p_idle_s  = IDG_GetAtlasImage ("data/gfx/player/p_idle_s/tile1.png",  1);
         p_idle_ew = IDG_GetAtlasImage ("data/gfx/player/p_idle_ew/tile1.png", 1);
-        // p_idle_n  = IDG_GetAtlasImage ("data/gfx/frin_test/f_idle_n/tile1.png",  1);
-        // p_idle_s  = IDG_GetAtlasImage ("data/gfx/frin_test/f_idle_s/tile1.png",  1);
-        // p_idle_ew = IDG_GetAtlasImage ("data/gfx/frin_test/f_idle_ew/tile1.png", 1);
     
         // load hurt textures
         p_hurt_n  = IDG_GetAtlasImage ("data/gfx/player/p_hurt_n/tile1.png",  1);
@@ -79,17 +76,6 @@ void init_player(entity_t *e)
             // walk east/west
             sprintf(filename, "data/gfx/player/p_walk_ew/tile%d.png", (i+1));
             p_walk_ew[i] = IDG_GetAtlasImage(filename, 1);
-            // walk north
-            // sprintf(filename, "data/gfx/frin_test/f_walk_n/tile%d.png", (i+1));
-            // p_walk_n[i]  = IDG_GetAtlasImage(filename, 1);
-            
-            // // walk south
-            // sprintf(filename, "data/gfx/frin_test/f_walk_s/tile%d.png", (i+1));
-            // p_walk_s[i]  = IDG_GetAtlasImage(filename, 1);
-            
-            // // walk east/west
-            // sprintf(filename, "data/gfx/frin_test/f_walk_ew/tile%d.png", (i+1));
-            // p_walk_ew[i] = IDG_GetAtlasImage(filename, 1);
         }
 
         // load die textures
@@ -236,7 +222,6 @@ static void move(entity_t *self, animation_handler_t *ah)
     }
     else
     {
-        // ah->frame = 0;
         switch(self->facing)
         {
         case FACING_LEFT:
@@ -261,30 +246,9 @@ static void shoot(entity_t *self, gunner_t *g)
 {
     g->reload = MAX((g->reload-app.delta_time), 0);
     if(app.mouse.buttons[SDL_BUTTON_LEFT] && g->reload == 0)
-        spawn_bullet(self, g->weapon_type);
+        fire_weapon(self, g->weapon_type);
 
 }
-
-// static void fire_bfg(entity_t *self)
-// {
-//     bullet_t *b;
-//     int base_angle;
-
-//     b            = spawn_bullet(b, WPN_BFG);
-//     b->type    = WPN_BFG;
-//     b->texture   = wpn_bfg_prj[0];
-//     b->damage    = WPN_BFG_BASE_DMG;
-//     b->life      = (FPS*WPN_BFG_BASE_LIFE);
-//     IDG_CreateBulletHitbox(b, HB_SPH);
-
-//     b->x = self->x;
-//     b->y = self->y;
-
-//     IDG_GetSlope(app.mouse.x, app.mouse.y, (b->x-stage.camera.pos.x), (b->y-stage.camera.pos.y), &b->dx, &b->dy);
-
-//     b->dx *= WPN_BFG_BASE_PRJ_SPD;
-//     b->dy *= WPN_BFG_BASE_PRJ_SPD;
-// }
 
 static int is_control(int type)
 {

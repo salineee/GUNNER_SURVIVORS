@@ -145,25 +145,34 @@ enum
 /* WEAPON STATS */
 // TODO - refactor this all into bullets.c/h
 
-// pistol
-#define WPN_PISTOL_BASE_LIFE       2
-#define WPN_PISTOL_BASE_DMG        1
-#define WPN_PISTOL_BASE_MAX_AMMO  -1 // TODO - treat -1 as infinite. curr unused
-#define WPN_PISTOL_BASE_RELOAD_SPD 20
-#define WPN_PISTOL_BASE_PRJ_SPD    12
+// PISTOL
+#define WPN_PISTOL_BASE_LIFE        2
+#define WPN_PISTOL_BASE_DMG         1
+#define WPN_PISTOL_BASE_MAX_AMMO   -1 // TODO - treat -1 as infinite. curr unused
+#define WPN_PISTOL_BASE_RELOAD_SPD  20
+#define WPN_PISTOL_BASE_PRJ_SPD     12
+
+// SHOTGUN
+#define WPN_SHOTGUN_BASE_LIFE       2
+#define WPN_SHOTGUN_BASE_DMG        5
+#define WPN_SHOTGUN_BASE_MAX_AMMO   24
+#define WPN_SHOTGUN_BASE_RELOAD_SPD 4
+#define WPN_SHOTGUN_BASE_PRJ_SPD    6
+#define WPN_SHOTGUN_BASE_PRJ_COUNT  3
+#define WPN_SHOTGUN_BASE_PRJ_SPREAD 24
 
 // BFG
-#define WPN_BFG_BASE_LIFE          2
-#define WPN_BFG_BASE_DMG          -1 // TODO - treat -1 as instakill/gib
-#define WPN_BFG_BASE_MAX_AMMO      3
-#define WPN_BFG_BASE_RELOAD_SPD    50
-#define WPN_BFG_BASE_PRJ_SPD       4
-#define WPN_BFG_PRJ_ANIM_FRAMES    5
-#define WPN_BFG_PRJ_ANIM_TIME      12
-#define WPN_BFG_IMPACT_ANIM_FRAMES 10
-#define WPN_BFG_IMPACT_ANIM_TIME   12
-#define WPN_BFG_TRACER_RANGE       500
-#define WPN_BFG_BASE_MAX_TRACERS   3
+#define WPN_BFG_BASE_LIFE           2
+#define WPN_BFG_BASE_DMG           -1 // TODO - treat -1 as instakill/gib
+#define WPN_BFG_BASE_MAX_AMMO       3
+#define WPN_BFG_BASE_RELOAD_SPD     50
+#define WPN_BFG_BASE_PRJ_SPD        4
+#define WPN_BFG_PRJ_ANIM_FRAMES     5
+#define WPN_BFG_PRJ_ANIM_TIME       12
+#define WPN_BFG_IMPACT_ANIM_FRAMES  10
+#define WPN_BFG_IMPACT_ANIM_TIME    12
+#define WPN_BFG_TRACER_RANGE        500
+#define WPN_BFG_BASE_MAX_TRACERS    3
 
 /* PLAYER STUFF */
 #define P_BASE_TRGT_XP          10
