@@ -109,6 +109,8 @@ void do_bullets(void)
     
     for(b=stage.bullet_head.next; b!=NULL; b=b->next)
     {
+        if(b->type == WPN_BFG) { stage.camera.shake = 1; }
+        
         b->x += (b->dx*app.delta_time);
         b->y += (b->dy*app.delta_time);
         // TODO - DO SOMETHING HERE TO HANDLE ROCKET SEEKING
@@ -124,6 +126,8 @@ void do_bullets(void)
         {
             if(b->type == WPN_BFG || b->type == WPN_ROCKET)
                 check_aoe_collisions(b); 
+
+            stage.camera.shake = 0;
 
             prev->next = b->next;
             if(b == stage.bullet_tail)
@@ -363,5 +367,4 @@ static void fire_bfg(entity_t *owner, int type)
     b->dy *= WPN_BFG_BASE_PRJ_SPD;
 
     IDG_CreateBulletHitbox(b, HB_RECT);
-    IDG_DoCameraShake(b->life, 10);
 }

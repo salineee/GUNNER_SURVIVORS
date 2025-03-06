@@ -22,28 +22,19 @@ void IDG_DoCamera(void)
 		exit(1);
 	}
 	
-	if(!stage.camera.shake)
-	{
-		stage.camera.pos.x = (int)stage.player->x + (stage.player->w/2);
-		stage.camera.pos.y = (int)stage.player->y + (stage.player->h/2);
+	stage.camera.pos.x = (int)stage.player->x + (stage.player->w/2);
+	stage.camera.pos.y = (int)stage.player->y + (stage.player->h/2);
 	
-		stage.camera.pos.x -= (SCREEN_WIDTH/2);
-		stage.camera.pos.y -= (SCREEN_HEIGHT/2);
+	stage.camera.pos.x -= (SCREEN_WIDTH/2);
+	stage.camera.pos.y -= (SCREEN_HEIGHT/2);
 	
-		stage.camera.pos.x = MIN(MAX(stage.camera.pos.x, 0), (MAP_WIDTH*MAP_TILE_SIZE)-SCREEN_WIDTH);
-		stage.camera.pos.y = MIN(MAX(stage.camera.pos.y, 0), (MAP_HEIGHT*MAP_TILE_SIZE)-SCREEN_HEIGHT);
-	}
-}
-
-void IDG_DoCameraShake(double life, int shake_amt)
-{
-	if(!stage.camera.initialized) { return; } // TODO - return w errors
-
-	stage.camera.shake = 1;
-	while((life-=app.delta_time) > 0)
+	stage.camera.pos.x = MIN(MAX(stage.camera.pos.x, 0), (MAP_WIDTH*MAP_TILE_SIZE)-SCREEN_WIDTH);
+	stage.camera.pos.y = MIN(MAX(stage.camera.pos.y, 0), (MAP_HEIGHT*MAP_TILE_SIZE)-SCREEN_HEIGHT);
+	
+	// TODO - refactor into effects
+	if(stage.camera.shake)
 	{
-		stage.camera.pos.x += rand()%shake_amt;
-		stage.camera.pos.y += rand()%shake_amt;
+		stage.camera.pos.x += rand()%10;
+		stage.camera.pos.y += rand()%10;
 	}
-	stage.camera.shake = 0;
 }
