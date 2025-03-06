@@ -166,7 +166,8 @@ enum
 #define WPN_ROCKET_BASE_DMG         50
 #define WPN_ROCKET_BASE_MAX_AMMO    12
 #define WPN_ROCKET_BASE_RELOAD_SPD  50
-#define WPN_ROCKET_BASE_PRJ_SPD     4
+#define WPN_ROCKET_BASE_PRJ_SPD     6
+#define WPN_ROCKET_BASE_AOE_RADIUS  100
 
 // BFG
 #define WPN_BFG_BASE_LIFE           2

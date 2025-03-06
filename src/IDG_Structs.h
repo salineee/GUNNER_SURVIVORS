@@ -265,6 +265,7 @@ typedef struct
     {
         SDL_Point pos;
         int       initialized;
+        int       shake;
     } camera;
 
     char        name[MAX_NAME_LENGTH];

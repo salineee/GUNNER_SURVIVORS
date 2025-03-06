@@ -2,6 +2,7 @@
 
 #include "../system/IDG_AnimationHandler.h"
 #include "../system/IDG_Atlas.h"
+#include "../system/IDG_Camera.h"
 #include "../system/IDG_Draw.h"
 #include "../system/IDG_Hitbox.h"
 #include "../system/IDG_Util.h"
@@ -108,19 +109,9 @@ void do_bullets(void)
     
     for(b=stage.bullet_head.next; b!=NULL; b=b->next)
     {
-        if(b->type == WPN_ROCKET && b->target != NULL)
-        {
-            double dx = IDG_GetAngle(b->x, b->y, b->target->x, b->target->y); 
-            double dy = IDG_GetAngle(b->x, b->y, b->target->x, b->target->y); 
-            printf("DX: %lf, DY: %lf\n", dx, dy);
-            b->x += (dx*app.delta_time);
-            b->y += (dy*app.delta_time);
-        }
-        else
-        {
-            b->x += (b->dx*app.delta_time);
-            b->y += (b->dy*app.delta_time);
-        }
+        b->x += (b->dx*app.delta_time);
+        b->y += (b->dy*app.delta_time);
+        // TODO - DO SOMETHING HERE TO HANDLE ROCKET SEEKING
 
         b->life    -= app.delta_time;
         // animation_handler_t *ah = IDG_GetAnimationHandler(b);
@@ -131,7 +122,8 @@ void do_bullets(void)
         
         if(b->life <= 0)
         {
-            if(b->type == WPN_BFG) { check_aoe_collisions(b); }
+            if(b->type == WPN_BFG || b->type == WPN_ROCKET)
+                check_aoe_collisions(b); 
 
             prev->next = b->next;
             if(b == stage.bullet_tail)
@@ -229,6 +221,19 @@ static void check_entity_collisions(bullet_t *b)
 
 static void check_aoe_collisions(bullet_t *b)
 {
+    // TODO - fix naming convention here
+    // TODO - is there a better way to set range?
+    int range = 0;
+    switch (b->type)
+    {
+    case WPN_BFG:
+        range = WPN_BFG_TRACER_RANGE;
+        break;
+    case WPN_ROCKET:
+        range = WPN_ROCKET_BASE_AOE_RADIUS;
+        break;
+    }
+
     // TODO - fix and implement quadtree here
     entity_t *e;
     for(e=stage.entity_head.next; e!=NULL; e=e->next)
@@ -242,7 +247,7 @@ static void check_aoe_collisions(bullet_t *b)
         int y2   = ((e->y-stage.camera.pos.y)+(e->texture->rect.h/2));
         int dist = IDG_GetDistance(x1, y1, x2, y2);
         
-        if(((e->flags & EF_SOLID) || e->take_damage != NULL) && IDG_SphCollide(dist, WPN_BFG_TRACER_RANGE, hb->radius))
+        if(((e->flags & EF_SOLID) || e->take_damage != NULL) && IDG_SphCollide(dist, range, hb->radius))
         {
             if(!e->dead && e->take_damage)
             {
@@ -358,4 +363,5 @@ static void fire_bfg(entity_t *owner, int type)
     b->dy *= WPN_BFG_BASE_PRJ_SPD;
 
     IDG_CreateBulletHitbox(b, HB_RECT);
+    IDG_DoCameraShake(b->life, 10);
 }
